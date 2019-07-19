@@ -1,3 +1,8 @@
-html {
-  background-color: linen;
+* {
+  margin: 0;
+  font-size: 0;
+}
+
+canvas {
+  background-color: #153d17;
 }
