@@ -14,16 +14,8 @@ class Sword {
     this.draw();
     setTimeout(() => {
       swordExist = false;
-    }, 500);
+    }, 1000);
   };
 }
 let sword;
 let swordExist = false;
-
-let weaponHeartbeat = () => {
-  if (swordExist) {
-    sword.draw();
-  }
-  window.requestAnimationFrame(weaponHeartbeat);
-};
-weaponHeartbeat();

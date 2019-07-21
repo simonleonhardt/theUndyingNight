@@ -24,6 +24,7 @@ let startGame = () => {
     checkKeys();
     draw(character);
     update(character);
+    checkSword();
     drawEntities();
     window.requestAnimationFrame(heartbeat);
   };
@@ -110,4 +111,10 @@ let drawEntities = () => {
     draw(ent);
     update(ent);
   });
+};
+
+let checkSword = () => {
+  if (swordExist) {
+    sword.draw();
+  }
 };
