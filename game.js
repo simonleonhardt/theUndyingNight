@@ -4,6 +4,11 @@ let keyCode;
 let keyPressed = false;
 let character;
 let entitiesArr = [];
+let heroImg = new Image();
+heroImg.src = "images/hero.png";
+let heroSX = 0;
+let heroSY = 0;
+let tick = 0;
 
 // Start Game
 let startGame = () => {
@@ -22,8 +27,9 @@ let startGame = () => {
   let heartbeat = () => {
     makeWorld();
     checkKeys();
-    draw(character);
+    // draw(character);
     update(character);
+    spriteLoop();
     checkSword();
     drawEntities();
     window.requestAnimationFrame(heartbeat);
@@ -60,10 +66,7 @@ document.addEventListener("keyup", e => {
 });
 
 // Draw Elements
-draw = elem => {
-  c.fillStyle = elem.color;
-  c.fillRect(elem.x, elem.y, elem.width, elem.height);
-};
+draw = elem => {};
 
 // Update Elements
 update = elem => {
@@ -71,27 +74,58 @@ update = elem => {
   elem.y += elem.dy;
 };
 
+let spriteLoop = () => {
+  tick++;
+  if (tick >= 10) {
+    if (keyPressed) {
+      heroSX += 32;
+      if (heroSX == 96) {
+        heroSX = 0;
+      }
+    }
+    tick = 0;
+  }
+  if (!keyPressed) {
+    heroSX = 0;
+  }
+  c.drawImage(
+    heroImg,
+    heroSX,
+    heroSY,
+    32,
+    32,
+    character.x,
+    character.y,
+    75,
+    75
+  );
+};
+
 let checkKeys = () => {
   if (keyPressed) {
     if (keyCode == 83) {
-      character.dy = 10;
+      character.dy = 7;
       character.swordX = 0;
       character.swordY = 50;
+      heroSY = 0;
     }
     if (keyCode == 87) {
-      character.dy = -10;
+      character.dy = -7;
       character.swordX = 0;
       character.swordY = -50;
+      heroSY = 96;
     }
     if (keyCode == 68) {
-      character.dx = 10;
+      character.dx = 7;
       character.swordX = 50;
       character.swordY = 0;
+      heroSY = 64;
     }
     if (keyCode == 65) {
-      character.dx = -10;
+      character.dx = -7;
       character.swordX = -50;
       character.swordY = 0;
+      heroSY = 32;
     }
     if (keyCode == 32) {
       if (!swordExist) {
