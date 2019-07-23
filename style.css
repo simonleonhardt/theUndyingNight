@@ -28,3 +28,20 @@ body {
 #quitButton {
   top: 50%;
 }
+
+#upKeyDiv {
+  top: 30%;
+}
+#downKeyDiv {
+  top: 40%;
+}
+#rightKeyDiv {
+  top: 50%;
+}
+#leftKeyDiv {
+  top: 60%;
+}
+
+#quitOptionsButton {
+  top: 70%;
+}
