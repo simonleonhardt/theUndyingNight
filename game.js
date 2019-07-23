@@ -18,7 +18,6 @@ let startGame = () => {
   c = canvas.getContext("2d");
 
   character = new Character(300, 300, 50, 50);
-  // entitiesArr.push(new Character(300, 300, 50, 50));
 
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
@@ -27,7 +26,6 @@ let startGame = () => {
   let heartbeat = () => {
     makeWorld();
     checkKeys();
-    // draw(character);
     update(character);
     spriteLoop();
     checkSword();
@@ -137,6 +135,9 @@ let checkKeys = () => {
         swordExist = true;
       }
     }
+    if (keyCode == 27) {
+      makeMenu();
+    }
   }
 };
 
@@ -160,3 +161,5 @@ let makeMenu = () => {
     startGame();
   });
 };
+
+makeMenu();
