@@ -7,13 +7,24 @@ body {
   background-color: rgb(29, 15, 29);
 }
 
-#playButton {
+.button {
   background-color: rgb(235, 200, 135);
-  width: 200px;
   height: 100px;
+  width: 30%;
   font-size: 70px;
   color: white;
   position: absolute;
-  left: 40%;
+  left: 35%;
+}
+
+#playButton {
   top: 30%;
+}
+
+#optionsButton {
+  top: 40%;
+}
+
+#quitButton {
+  top: 50%;
 }
