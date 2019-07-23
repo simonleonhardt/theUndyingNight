@@ -18,7 +18,6 @@ let startGame = () => {
   c = canvas.getContext("2d");
 
   character = new Character(300, 300, 50, 50);
-  // entitiesArr.push(new Character(300, 300, 50, 50));
 
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
@@ -27,7 +26,6 @@ let startGame = () => {
   let heartbeat = () => {
     makeWorld();
     checkKeys();
-    // draw(character);
     update(character);
     spriteLoop();
     checkSword();
@@ -77,15 +75,17 @@ update = elem => {
 let spriteLoop = () => {
   tick++;
   if (tick >= 10) {
-    if (keyPressed) {
+    if (
+      (keyPressed && keyCode == 83) ||
+      keyCode == 87 ||
+      keyCode == 68 ||
+      keyCode == 65
+    ) {
       heroSX += 32;
-      if (heroSX == 96) {
-        heroSX = 0;
-      }
     }
     tick = 0;
   }
-  if (!keyPressed) {
+  if (heroSX == 96) {
     heroSX = 0;
   }
   c.drawImage(
@@ -137,6 +137,9 @@ let checkKeys = () => {
         swordExist = true;
       }
     }
+    if (keyCode == 27) {
+      makeMenu();
+    }
   }
 };
 
@@ -152,3 +155,19 @@ let checkSword = () => {
     sword.draw();
   }
 };
+
+// Make menu
+let makeMenu = () => {
+  document.querySelector("body").innerHTML =
+    "<div id='playButton' class='button'>PLAY</div>" +
+    "<div id='optionsButton' class='button'>OPTIONS</div>" +
+    "<div id='quitButton' class='button'>QUIT</div>";
+  document.getElementById("playButton").addEventListener("click", () => {
+    startGame();
+  });
+  document.getElementById("quitButton").addEventListener("click", () => {
+    window.close();
+  });
+};
+
+makeMenu();

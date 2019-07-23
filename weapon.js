@@ -7,7 +7,7 @@ class Sword {
   }
   draw = () => {
     c.fillStyle = "grey";
-    c.arc(this.x, this.y, 15, 0, Math.PI * 2, false);
+    c.arc(this.x, this.y, 20, 0, Math.PI * 2, false);
     c.fill();
   };
   swing = () => {
