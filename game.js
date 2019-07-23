@@ -10,6 +10,8 @@ let heroSX = 0;
 let heroSY = 0;
 let tick = 0;
 
+console.log("TEST");
+
 // Start Game
 let startGame = () => {
   document.querySelector("body").innerHTML = "<canvas></canvas>";
