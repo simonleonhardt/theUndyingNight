@@ -9,6 +9,10 @@ heroImg.src = "images/hero.png";
 let heroSX = 0;
 let heroSY = 0;
 let tick = 0;
+let upKey = { key: "w", keyCode: 87 };
+let downKey = { key: "s", keyCode: 83 };
+let rightKey = { key: "d", keyCode: 68 };
+let leftKey = { key: "a", keyCode: 65 };
 
 // Start Game
 let startGame = () => {
@@ -75,13 +79,14 @@ update = elem => {
 let spriteLoop = () => {
   tick++;
   if (tick >= 10) {
-    if (
-      (keyPressed && keyCode == 83) ||
-      keyCode == 87 ||
-      keyCode == 68 ||
-      keyCode == 65
-    ) {
-      heroSX += 32;
+    if (keyPressed) {
+      if (
+        keyCode == upKey.keyCode ||
+        keyCode == downKey.keyCode ||
+        keyCode == rightKey.keyCode ||
+        keyCode == leftKey.keyCode
+      )
+        heroSX += 32;
     }
     tick = 0;
   }
@@ -103,25 +108,25 @@ let spriteLoop = () => {
 
 let checkKeys = () => {
   if (keyPressed) {
-    if (keyCode == 83) {
+    if (keyCode == downKey.keyCode) {
       character.dy = 7;
       character.swordX = 0;
       character.swordY = 50;
       heroSY = 0;
     }
-    if (keyCode == 87) {
+    if (keyCode == upKey.keyCode) {
       character.dy = -7;
       character.swordX = 0;
       character.swordY = -50;
       heroSY = 96;
     }
-    if (keyCode == 68) {
+    if (keyCode == rightKey.keyCode) {
       character.dx = 7;
       character.swordX = 50;
       character.swordY = 0;
       heroSY = 64;
     }
-    if (keyCode == 65) {
+    if (keyCode == leftKey.keyCode) {
       character.dx = -7;
       character.swordX = -50;
       character.swordY = 0;
@@ -164,6 +169,27 @@ let makeMenu = () => {
     "<div id='quitButton' class='button'>QUIT</div>";
   document.getElementById("playButton").addEventListener("click", () => {
     startGame();
+  });
+  document.getElementById("optionsButton").addEventListener("click", () => {
+    document.querySelector("body").innerHTML =
+      "<div class='button' id='upKeyDiv'>UP: " +
+      upKey.key +
+      "</div>" +
+      "<div class='button' id='downKeyDiv'>DOWN: " +
+      downKey.key +
+      "</div>" +
+      "<div class='button' id='rightKeyDiv'>RIGHT: " +
+      rightKey.key +
+      "</div>" +
+      "<div class='button' id='leftKeyDiv'>LEFT: " +
+      leftKey.key +
+      "</div>" +
+      "<div class = 'button' id='quitOptionsButton'>MENU</div>";
+    document
+      .getElementById("quitOptionsButton")
+      .addEventListener("click", () => {
+        makeMenu();
+      });
   });
   document.getElementById("quitButton").addEventListener("click", () => {
     window.close();
