@@ -152,3 +152,11 @@ let checkSword = () => {
     sword.draw();
   }
 };
+
+// Make menu
+let makeMenu = () => {
+  document.querySelector("body").innerHTML = "<div id='playButton'>PLAY</div>";
+  document.getElementById("playButton").addEventListener("mouseup", () => {
+    startGame();
+  });
+};
