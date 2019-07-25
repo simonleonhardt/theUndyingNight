@@ -8,6 +8,5 @@ class Character {
     this.height = height;
     this.swordX = 50;
     this.swordY = 0;
-    this.color = "#5f9afa";
   }
 }

@@ -26,11 +26,14 @@ let startGame = () => {
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
 
+  makeWave(Math.random() * 5, Math.random() * 5);
+
   // Heartbeat
   let heartbeat = () => {
     makeWorld();
     checkKeys();
     update(character);
+    updateEnemies();
     spriteLoop();
     checkSword();
     drawEntities();
@@ -159,6 +162,30 @@ let checkSword = () => {
   if (swordExist) {
     sword.draw();
   }
+};
+
+let summonZombie = (x, y) => {
+  enemyArr.push(new Enemy(x, y, 4));
+};
+
+let summonOrc = (x, y) => {
+  enemyArr.push(new Enemy(x, y, 2));
+};
+
+let makeWave = (numOfZombs, numOfOrcs) => {
+  for (let i = 0; i < numOfZombs; i++) {
+    summonZombie(Math.random() * canvas.width, Math.random() * canvas.height);
+  }
+  for (let i = 0; i < numOfOrcs; i++) {
+    summonOrc(Math.random() * canvas.width, Math.random() * canvas.height);
+  }
+};
+
+let updateEnemies = () => {
+  enemyArr.forEach(enemy => {
+    enemy.draw();
+    enemy.chasePlayer();
+  });
 };
 
 // Make menu
