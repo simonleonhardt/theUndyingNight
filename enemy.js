@@ -1,11 +1,12 @@
 class Enemy {
-  constructor(x, y, speed) {
+  constructor(x, y, speed, color) {
     this.x = x;
     this.y = y;
     this.speed = speed;
+    this.color = color;
   }
   draw = () => {
-    c.fillStyle = "coral";
+    c.fillStyle = this.color;
     c.fillRect(this.x, this.y, 50, 50);
   };
   chasePlayer = () => {
@@ -24,4 +25,7 @@ class Enemy {
   };
 }
 
-let enemyArr = [];
+let enemyType = {
+  zombie: { speed: 4, color: "green" },
+  orc: { speed: 2, color: "coral" }
+};
