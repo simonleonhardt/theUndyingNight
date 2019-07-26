@@ -169,20 +169,24 @@ let checkSword = () => {
   }
 };
 
-let summonZombie = (x, y) => {
-  enemyArr.push(new Enemy(x, y, 4));
-};
-
-let summonOrc = (x, y) => {
-  enemyArr.push(new Enemy(x, y, 2));
+let summonEnemy = (x, y, enemyType) => {
+  enemyArr.push(new Enemy(x, y, enemyType.speed, enemyType.color));
 };
 
 let makeWave = (numOfZombs, numOfOrcs) => {
   for (let i = 0; i < numOfZombs; i++) {
-    summonZombie(Math.random() * canvas.width, Math.random() * canvas.height);
+    summonEnemy(
+      Math.random() * canvas.width,
+      Math.random() * canvas.height,
+      enemyType.zombie
+    );
   }
   for (let i = 0; i < numOfOrcs; i++) {
-    summonOrc(Math.random() * canvas.width, Math.random() * canvas.height);
+    summonEnemy(
+      Math.random() * canvas.width,
+      Math.random() * canvas.height,
+      enemyType.orc
+    );
   }
 };
 
