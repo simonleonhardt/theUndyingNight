@@ -8,13 +8,14 @@ let entitiesArr = [];
 let heroImg = new Image();
 heroImg.src = "images/hero.png";
 let heroSX = 0;
-let heroSY = 0;
+let heroSY = 82;
 let tick = 0;
 let upKey = { key: "w", keyCode: 87 };
 let downKey = { key: "s", keyCode: 83 };
 let rightKey = { key: "d", keyCode: 68 };
 let leftKey = { key: "a", keyCode: 65 };
 let enemyArr = [];
+let swordArr = [];
 
 // Start Game
 let startGame = () => {
@@ -37,8 +38,8 @@ let startGame = () => {
     checkKeys();
     update(character);
     updateEnemies();
+    swordArr.length > 0 ? swordArr[0].draw() : null;
     spriteLoop();
-    checkSword();
     drawEntities();
     if (gameRunning) {
       window.requestAnimationFrame(heartbeat);
@@ -106,7 +107,7 @@ let spriteLoop = () => {
     heroSX,
     heroSY,
     32,
-    32,
+    41,
     character.x,
     character.y,
     75,
@@ -126,29 +127,28 @@ let checkKeys = () => {
       character.dy = -7;
       character.swordX = 0;
       character.swordY = -50;
-      heroSY = 96;
+      heroSY = 123;
     }
     if (keyCode == rightKey.keyCode) {
       character.dx = 7;
       character.swordX = 50;
       character.swordY = 0;
-      heroSY = 64;
+      heroSY = 82;
     }
     if (keyCode == leftKey.keyCode) {
       character.dx = -7;
       character.swordX = -50;
       character.swordY = 0;
-      heroSY = 32;
+      heroSY = 41;
     }
     if (keyCode == 32) {
-      if (!swordExist) {
-        sword = new Sword(
+      swordArr.push(
+        new Sword(
           character.x + character.width / 2 + character.swordX,
           character.y + character.height / 2 + character.swordY
-        );
-        sword.swing();
-        swordExist = true;
-      }
+        )
+      );
+      setTimeout(destroySword, 500);
     }
     if (keyCode == 27) {
       makeMenu();
@@ -163,11 +163,11 @@ let drawEntities = () => {
   });
 };
 
-let checkSword = () => {
-  if (swordExist) {
-    sword.draw();
-  }
-};
+// let checkSword = () => {
+//   if (swordExist) {
+//     swordArr[0].draw();
+//   }
+// };
 
 let summonEnemy = (x, y, enemyType) => {
   enemyArr.push(new Enemy(x, y, enemyType.speed, enemyType.color));
@@ -204,6 +204,8 @@ let makeMenu = () => {
     enemyArr.pop();
   }
   document.querySelector("body").innerHTML =
+    "<img src='images/theUndyingNightLogoEdited.jpg' id='logo'>" +
+    "<img src='images/theUndyingNightTitleEdited.png' id='title'>" +
     "<div id='playButton' class='button'>PLAY</div>" +
     "<div id='optionsButton' class='button'>OPTIONS</div>" +
     "<div id='quitButton' class='button'>QUIT</div>";
