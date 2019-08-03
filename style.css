@@ -18,15 +18,15 @@ body {
 }
 
 #playButton {
-  top: 30%;
+  top: 60%;
 }
 
 #optionsButton {
-  top: 40%;
+  top: 70%;
 }
 
 #quitButton {
-  top: 50%;
+  top: 80%;
 }
 
 #upKeyDiv {
@@ -44,4 +44,20 @@ body {
 
 #quitOptionsButton {
   top: 70%;
+}
+
+#logo {
+  height: 400px;
+  width: 20%;
+  position: absolute;
+  top: 1%;
+  left: 39%;
+}
+
+#title {
+  height: 200px;
+  width: 30%;
+  position: absolute;
+  top: 40%;
+  left: 34%;
 }

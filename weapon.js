@@ -1,21 +1,20 @@
+let swordExist = false;
+
+let destroySword = () => {
+  swordArr.splice(0, 1);
+};
+
 class Sword {
   constructor(x, y) {
     this.x = x;
     this.y = y;
+    this.width = 50;
+    this.height = 50;
     this.dx = 0;
     this.dy = 0;
   }
   draw = () => {
     c.fillStyle = "grey";
-    c.arc(this.x, this.y, 20, 0, Math.PI * 2, false);
-    c.fill();
-  };
-  swing = () => {
-    this.draw();
-    setTimeout(() => {
-      swordExist = false;
-    }, 1000);
+    c.fillRect(this.x, this.y, this.width, this.height);
   };
 }
-let sword;
-let swordExist = false;
