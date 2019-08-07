@@ -25,10 +25,10 @@ let startGame = () => {
   canvas = document.querySelector("canvas");
   c = canvas.getContext("2d");
 
-  character = new Character(300, 300, 55, 55);
-
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
+
+  character = new Character(300, 300, 55, 55);
 
   makeWave(Math.random() * 5, Math.random() * 5);
 
@@ -38,6 +38,7 @@ let startGame = () => {
     checkKeys();
     draw(character);
     update(character);
+    checkCharacterCollision();
     updateEnemies();
     swordArr.length > 0 ? swordArr[0].draw() : null;
     spriteLoop();
@@ -189,6 +190,12 @@ let updateEnemies = () => {
   enemyArr.forEach(enemy => {
     enemy.draw();
     enemy.chasePlayer();
+  });
+};
+
+checkCharacterCollision = () => {
+  enemyArr.forEach(position => {
+    character.checkCollision(position);
   });
 };
 
