@@ -25,10 +25,10 @@ let startGame = () => {
   canvas = document.querySelector("canvas");
   c = canvas.getContext("2d");
 
-  character = new Character(300, 300, 50, 50);
-
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
+
+  character = new Character(300, 300, 55, 55);
 
   makeWave(Math.random() * 5, Math.random() * 5);
 
@@ -36,7 +36,9 @@ let startGame = () => {
   let heartbeat = () => {
     makeWorld();
     checkKeys();
+    draw(character);
     update(character);
+    checkCharacterCollision();
     updateEnemies();
     swordArr.length > 0 ? swordArr[0].draw() : null;
     spriteLoop();
@@ -108,8 +110,8 @@ let spriteLoop = () => {
     heroSY,
     32,
     41,
-    character.x,
-    character.y,
+    character.x - 10,
+    character.y - 10,
     75,
     75
   );
@@ -144,8 +146,8 @@ let checkKeys = () => {
     if (keyCode == 32) {
       swordArr.push(
         new Sword(
-          character.x + character.width / 2 + character.swordX,
-          character.y + character.height / 2 + character.swordY
+          character.x + character.swordX,
+          character.y + character.swordY
         )
       );
       setTimeout(destroySword, 500);
@@ -162,12 +164,6 @@ let drawEntities = () => {
     update(ent);
   });
 };
-
-// let checkSword = () => {
-//   if (swordExist) {
-//     swordArr[0].draw();
-//   }
-// };
 
 let summonEnemy = (x, y, enemyType) => {
   enemyArr.push(new Enemy(x, y, enemyType.speed, enemyType.color));
@@ -194,6 +190,12 @@ let updateEnemies = () => {
   enemyArr.forEach(enemy => {
     enemy.draw();
     enemy.chasePlayer();
+  });
+};
+
+checkCharacterCollision = () => {
+  enemyArr.forEach(position => {
+    character.checkCollision(position);
   });
 };
 
