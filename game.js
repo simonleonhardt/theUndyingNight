@@ -4,7 +4,6 @@ let gameRunning = false;
 let keyCode;
 let keyPressed = false;
 let character;
-let entitiesArr = [];
 let heroImg = new Image();
 heroImg.src = "images/hero.png";
 let heroSX = 0;
@@ -16,6 +15,7 @@ let rightKey = { key: "d", keyCode: 68 };
 let leftKey = { key: "a", keyCode: 65 };
 let enemyArr = [];
 let swordArr = [];
+let entityArr = [];
 
 // Start Game
 let startGame = () => {
@@ -29,6 +29,7 @@ let startGame = () => {
   canvas.height = window.innerHeight;
 
   character = new Character(300, 300, 55, 55);
+  entityArr.push(character);
 
   makeWave(Math.random() * 5, Math.random() * 5);
 
@@ -39,10 +40,10 @@ let startGame = () => {
     draw(character);
     update(character);
     checkCharacterCollision();
+    checkEnemyCollision();
     updateEnemies();
     swordArr.length > 0 ? swordArr[0].draw() : null;
     spriteLoop();
-    drawEntities();
     if (gameRunning) {
       window.requestAnimationFrame(heartbeat);
     }
@@ -158,15 +159,9 @@ let checkKeys = () => {
   }
 };
 
-let drawEntities = () => {
-  entitiesArr.map(ent => {
-    draw(ent);
-    update(ent);
-  });
-};
-
 let summonEnemy = (x, y, enemyType) => {
   enemyArr.push(new Enemy(x, y, enemyType.speed, enemyType.color));
+  entityArr.push(enemyArr[enemyArr.length - 1]);
 };
 
 let makeWave = (numOfZombs, numOfOrcs) => {
@@ -193,9 +188,28 @@ let updateEnemies = () => {
   });
 };
 
+checkAllCollision = () => {
+  checkCharacterCollision();
+  checkEnemyCollision();
+};
+
 checkCharacterCollision = () => {
-  enemyArr.forEach(position => {
-    character.checkCollision(position);
+  entityArr.forEach(collider => {
+    if (collider != character) {
+      character.checkCollision(collider);
+    }
+  });
+};
+
+checkEnemyCollision = () => {
+  enemyArr.forEach(enemy => {
+    entityArr.forEach(collider => {
+      if (collider.physical == true) {
+        if (collider != enemy) {
+          enemy.checkCollision(collider);
+        }
+      }
+    });
   });
 };
 
