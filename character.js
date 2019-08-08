@@ -6,6 +6,7 @@ class Character {
     this.dy = 0;
     this.width = width;
     this.height = height;
+    this.physical = true;
     this.swordX = 50;
     this.swordY = 0;
   }

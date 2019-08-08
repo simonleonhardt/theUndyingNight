@@ -10,8 +10,7 @@ class Sword {
     this.y = y;
     this.width = 55;
     this.height = 55;
-    this.dx = 0;
-    this.dy = 0;
+    this.physical = false;
   }
   draw = () => {
     c.fillStyle = "grey";
