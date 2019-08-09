@@ -1,10 +1,11 @@
 class Enemy {
-  constructor(x, y, speed, color) {
+  constructor(x, y, speed, color, type) {
     this.x = x;
     this.y = y;
     this.width = 55;
     this.height = 55;
     this.physical = true;
+    this.type = type;
     this.speed = speed;
     this.color = color;
   }
