@@ -1,9 +1,3 @@
-let swordExist = false;
-
-let destroySword = () => {
-  swordArr.splice(0, 1);
-};
-
 class Sword {
   constructor(x, y) {
     this.x = x;
@@ -17,3 +11,8 @@ class Sword {
     c.fillRect(this.x, this.y, this.width, this.height);
   };
 }
+
+let destroySword = () => {
+  swordArr.pop();
+  entityArr.splice(entityArr.indexOf(swordArr[0]), 1);
+};

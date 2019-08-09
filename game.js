@@ -8,6 +8,7 @@ let heroImg = new Image();
 heroImg.src = "images/hero.png";
 let heroSX = 0;
 let heroSY = 82;
+let swordExist = false;
 let tick = 0;
 let upKey = { key: "w", keyCode: 87 };
 let downKey = { key: "s", keyCode: 83 };
@@ -39,8 +40,7 @@ let startGame = () => {
     checkKeys();
     draw(character);
     update(character);
-    checkCharacterCollision();
-    checkEnemyCollision();
+    checkAllCollision();
     updateEnemies();
     swordArr.length > 0 ? swordArr[0].draw() : null;
     spriteLoop();
@@ -120,47 +120,50 @@ let spriteLoop = () => {
 
 let checkKeys = () => {
   if (keyPressed) {
-    if (keyCode == downKey.keyCode) {
-      character.dy = 7;
-      character.swordX = 0;
-      character.swordY = 50;
-      heroSY = 0;
-    }
-    if (keyCode == upKey.keyCode) {
-      character.dy = -7;
-      character.swordX = 0;
-      character.swordY = -50;
-      heroSY = 123;
-    }
-    if (keyCode == rightKey.keyCode) {
-      character.dx = 7;
-      character.swordX = 50;
-      character.swordY = 0;
-      heroSY = 82;
-    }
-    if (keyCode == leftKey.keyCode) {
-      character.dx = -7;
-      character.swordX = -50;
-      character.swordY = 0;
-      heroSY = 41;
-    }
-    if (keyCode == 32) {
-      swordArr.push(
-        new Sword(
-          character.x + character.swordX,
-          character.y + character.swordY
-        )
-      );
-      setTimeout(destroySword, 500);
-    }
-    if (keyCode == 27) {
-      makeMenu();
+    if (swordArr.length == 0) {
+      if (keyCode == downKey.keyCode) {
+        character.dy = 7;
+        character.swordX = 0;
+        character.swordY = 50;
+        heroSY = 0;
+      }
+      if (keyCode == upKey.keyCode) {
+        character.dy = -7;
+        character.swordX = 0;
+        character.swordY = -50;
+        heroSY = 123;
+      }
+      if (keyCode == rightKey.keyCode) {
+        character.dx = 7;
+        character.swordX = 50;
+        character.swordY = 0;
+        heroSY = 82;
+      }
+      if (keyCode == leftKey.keyCode) {
+        character.dx = -7;
+        character.swordX = -50;
+        character.swordY = 0;
+        heroSY = 41;
+      }
+      if (keyCode == 32) {
+        swordArr.push(
+          new Sword(
+            character.x + character.swordX,
+            character.y + character.swordY
+          )
+        );
+        entityArr.push(swordArr[0]);
+        setTimeout(destroySword, 250);
+      }
+      if (keyCode == 27) {
+        makeMenu();
+      }
     }
   }
 };
 
 let summonEnemy = (x, y, enemyType) => {
-  enemyArr.push(new Enemy(x, y, enemyType.speed, enemyType.color));
+  enemyArr.push(new Enemy(x, y, enemyType.speed, enemyType.color, enemyType));
   entityArr.push(enemyArr[enemyArr.length - 1]);
 };
 
@@ -195,8 +198,10 @@ checkAllCollision = () => {
 
 checkCharacterCollision = () => {
   entityArr.forEach(collider => {
-    if (collider != character) {
-      character.checkCollision(collider);
+    if (collider.physical) {
+      if (collider != character) {
+        character.checkCollision(collider);
+      }
     }
   });
 };
@@ -204,7 +209,7 @@ checkCharacterCollision = () => {
 checkEnemyCollision = () => {
   enemyArr.forEach(enemy => {
     entityArr.forEach(collider => {
-      if (collider.physical == true) {
+      if (collider.physical) {
         if (collider != enemy) {
           enemy.checkCollision(collider);
         }
