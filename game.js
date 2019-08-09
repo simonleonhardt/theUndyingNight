@@ -32,11 +32,10 @@ let startGame = () => {
   character = new Character(300, 300, 55, 55);
   entityArr.push(character);
 
-  makeWave(Math.random() * 5, Math.random() * 5);
-
   // Heartbeat
   let heartbeat = () => {
     makeWorld();
+    makeWave(Math.random() * 10, Math.random() * 5);
     checkKeys();
     draw(character);
     update(character);
@@ -168,19 +167,21 @@ let summonEnemy = (x, y, enemyType) => {
 };
 
 let makeWave = (numOfZombs, numOfOrcs) => {
-  for (let i = 0; i < numOfZombs; i++) {
-    summonEnemy(
-      Math.random() * canvas.width,
-      Math.random() * canvas.height,
-      enemyType.zombie
-    );
-  }
-  for (let i = 0; i < numOfOrcs; i++) {
-    summonEnemy(
-      Math.random() * canvas.width,
-      Math.random() * canvas.height,
-      enemyType.orc
-    );
+  if (enemyArr.length == 0) {
+    for (let i = 0; i < numOfZombs; i++) {
+      summonEnemy(
+        Math.random() * canvas.width,
+        Math.random() * canvas.height,
+        enemyType.zombie
+      );
+    }
+    for (let i = 0; i < numOfOrcs; i++) {
+      summonEnemy(
+        Math.random() * canvas.width,
+        Math.random() * canvas.height,
+        enemyType.orc
+      );
+    }
   }
 };
 
@@ -209,10 +210,8 @@ checkCharacterCollision = () => {
 checkEnemyCollision = () => {
   enemyArr.forEach(enemy => {
     entityArr.forEach(collider => {
-      if (collider.physical) {
-        if (collider != enemy) {
-          enemy.checkCollision(collider);
-        }
+      if (collider != enemy) {
+        enemy.checkCollision(collider);
       }
     });
   });
