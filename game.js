@@ -223,6 +223,13 @@ let makeMenu = () => {
   for (let i = 0; i < enemyArr.length; ) {
     enemyArr.pop();
   }
+  for (let i = 0; i < entityArr.length; ) {
+    entityArr.pop();
+  }
+  for (let i = 0; i < swordArr.length; ) {
+    swordArr.pop();
+  }
+
   document.querySelector("body").innerHTML =
     "<img src='images/theUndyingNightLogoEdited.jpg' id='logo'>" +
     "<img src='images/theUndyingNightTitleEdited.png' id='title'>" +
