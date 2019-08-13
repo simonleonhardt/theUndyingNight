@@ -17,6 +17,7 @@ let leftKey = { key: "a", keyCode: 65 };
 let enemyArr = [];
 let swordArr = [];
 let entityArr = [];
+let wave;
 
 // Start Game
 let startGame = () => {
@@ -32,6 +33,8 @@ let startGame = () => {
   character = new Character(300, 300, 55, 55);
   entityArr.push(character);
 
+  wave = 0;
+
   // Heartbeat
   let heartbeat = () => {
     makeWorld();
@@ -41,6 +44,7 @@ let startGame = () => {
     update(character);
     checkAllCollision();
     updateEnemies();
+    displayScore();
     swordArr.length > 0 ? swordArr[0].draw() : null;
     spriteLoop();
     if (gameRunning) {
@@ -161,6 +165,11 @@ let checkKeys = () => {
   }
 };
 
+let displayScore = () => {
+  c.font = "20px Arial";
+  c.fillText("Wave: " + wave, 25, 25);
+};
+
 let summonEnemy = (x, y, enemyType) => {
   enemyArr.push(new Enemy(x, y, enemyType.speed, enemyType.color, enemyType));
   entityArr.push(enemyArr[enemyArr.length - 1]);
@@ -168,6 +177,7 @@ let summonEnemy = (x, y, enemyType) => {
 
 let makeWave = (numOfZombs, numOfOrcs) => {
   if (enemyArr.length == 0) {
+    wave++;
     for (let i = 0; i < numOfZombs; i++) {
       summonEnemy(
         Math.random() * canvas.width,
