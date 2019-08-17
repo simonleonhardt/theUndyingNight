@@ -6,10 +6,12 @@ let keyPressed = false;
 let character;
 let heroImg = new Image();
 heroImg.src = "images/hero.png";
+let zombieImg = new Image();
+zombieImg.src = "images/zombie.png";
 let heroSX = 0;
 let heroSY = 82;
 let swordExist = false;
-let tick = 0;
+let heroSpriteTick = 0;
 let upKey = { key: "w", keyCode: 87 };
 let downKey = { key: "s", keyCode: 83 };
 let rightKey = { key: "d", keyCode: 68 };
@@ -46,7 +48,7 @@ let startGame = () => {
     updateEnemies();
     displayScore();
     swordArr.length > 0 ? swordArr[0].draw() : null;
-    spriteLoop();
+    allSpriteLoop();
     if (gameRunning) {
       window.requestAnimationFrame(heartbeat);
     }
@@ -91,9 +93,19 @@ update = elem => {
   elem.y += elem.dy;
 };
 
-let spriteLoop = () => {
-  tick++;
-  if (tick >= 10) {
+let allSpriteLoop = () => {
+  heroSpriteTick++;
+  enemyArr.forEach(enemy => {
+    enemy.zombieSpriteTick++;
+  });
+  heroSpriteLoop();
+  enemyArr.forEach(enemy => {
+    enemy.zombieSpriteLoop();
+  });
+};
+
+let heroSpriteLoop = () => {
+  if (heroSpriteTick >= 10) {
     if (keyPressed) {
       if (
         keyCode == upKey.keyCode ||
@@ -103,7 +115,7 @@ let spriteLoop = () => {
       )
         heroSX += 32;
     }
-    tick = 0;
+    heroSpriteTick = 0;
   }
   if (heroSX == 96) {
     heroSX = 0;
@@ -167,6 +179,7 @@ let checkKeys = () => {
 
 let displayScore = () => {
   c.font = "20px Arial";
+  c.fillStyle = "white";
   c.fillText("Wave: " + wave, 25, 25);
 };
 
@@ -197,7 +210,6 @@ let makeWave = (numOfZombs, numOfOrcs) => {
 
 let updateEnemies = () => {
   enemyArr.forEach(enemy => {
-    enemy.draw();
     enemy.chasePlayer();
   });
 };
