@@ -3,32 +3,76 @@ class Enemy {
     this.x = x;
     this.y = y;
     this.width = 55;
-    this.height = 55;
+    this.height = 75;
     this.physical = true;
     this.type = type;
     this.speed = speed;
     this.color = color;
     this.attacking = false;
+    this.zombieSpriteTick = 0;
+    this.SX = 0;
+    this.SY = 0;
   }
-  draw = () => {
-    c.fillStyle = this.color;
-    c.fillRect(this.x, this.y, this.width, this.height);
-  };
   chasePlayer = () => {
     if (!this.attacking) {
       if (this.x > character.x) {
         this.x -= this.speed;
+        this.SY = 128;
       }
       if (this.x < character.x) {
         this.x += this.speed;
+        this.SY = 384;
       }
       if (this.y > character.y) {
         this.y -= this.speed;
+        this.SY = 0;
       }
       if (this.y < character.y) {
         this.y += this.speed;
+        this.SY = 256;
       }
     }
+  };
+  zombieSpriteLoop = () => {
+    if (this.zombieSpriteTick >= 10 && !this.attacking) {
+      this.SX += 128;
+      this.zombieSpriteTick = 0;
+    }
+    if (this.zombieSpriteTick >= 30 && this.attacking) {
+      this.SX += 128;
+      this.zombieSpriteTick = 0;
+    }
+    if (this.SX >= 1024 && !this.attacking) {
+      this.SX = 0;
+    }
+    if (this.attacking) {
+      if (this.x > character.x) {
+        this.SY = 640;
+      }
+      if (this.x < character.x) {
+        this.SY = 896;
+      }
+      if (this.y > character.y) {
+        this.SY = 512;
+      }
+      if (this.y < character.y) {
+        this.SY = 768;
+      }
+      if (this.SX > 640) {
+        this.SX = 0;
+      }
+    }
+    c.drawImage(
+      zombieImg,
+      this.SX,
+      this.SY,
+      128,
+      128,
+      this.x - 30,
+      this.y - 20,
+      110,
+      110
+    );
   };
   checkCollision = entity => {
     if (
@@ -41,22 +85,18 @@ class Enemy {
       let vectorY = this.y + this.height / 2 - (entity.y + entity.height / 2);
 
       if (entity == character) {
-        this.color = "red";
         this.attacking = true;
         setTimeout(() => {
           this.attacking = false;
-          if (this.type == enemyType.zombie) {
-            this.color = enemyType.zombie.color;
-          } else if (this.type == enemyType.orc) {
-            this.color = enemyType.orc.color;
-          }
           if (
             this.x <= character.x + character.width &&
             this.x + this.width >= character.x &&
             this.y <= character.y + character.height &&
             this.y + this.height >= character.y
           ) {
-            makeMenu();
+            if (entityArr.indexOf(this) >= 0) {
+              makeMenu();
+            }
           }
         }, 2000);
       }
@@ -84,6 +124,6 @@ class Enemy {
 }
 
 let enemyType = {
-  zombie: { speed: 4, color: "green" },
-  orc: { speed: 2, color: "coral" }
+  zombie: { speed: 4 },
+  orc: { speed: 2 }
 };
