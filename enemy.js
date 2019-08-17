@@ -12,24 +12,45 @@ class Enemy {
     this.zombieSpriteTick = 0;
     this.SX = 0;
     this.SY = 0;
+    this.distanceX = character.x - this.x;
+    this.distanceY = character.y - this.y;
   }
   chasePlayer = () => {
     if (!this.attacking) {
-      if (this.x > character.x) {
-        this.x -= this.speed;
-        this.SY = 128;
-      }
-      if (this.x < character.x) {
-        this.x += this.speed;
-        this.SY = 384;
-      }
-      if (this.y > character.y) {
-        this.y -= this.speed;
-        this.SY = 0;
-      }
-      if (this.y < character.y) {
-        this.y += this.speed;
-        this.SY = 256;
+      if (this.distanceY * this.distanceY > this.distanceX * this.distanceX) {
+        if (this.x > character.x) {
+          this.x -= this.speed;
+          this.SY = 128;
+        }
+        if (this.x < character.x) {
+          this.x += this.speed;
+          this.SY = 384;
+        }
+        if (this.y > character.y) {
+          this.y -= this.speed;
+          this.SY = 0;
+        }
+        if (this.y < character.y) {
+          this.y += this.speed;
+          this.SY = 256;
+        }
+      } else {
+        if (this.y > character.y) {
+          this.y -= this.speed;
+          this.SY = 0;
+        }
+        if (this.y < character.y) {
+          this.y += this.speed;
+          this.SY = 256;
+        }
+        if (this.x > character.x) {
+          this.x -= this.speed;
+          this.SY = 128;
+        }
+        if (this.x < character.x) {
+          this.x += this.speed;
+          this.SY = 384;
+        }
       }
     }
   };
@@ -38,7 +59,7 @@ class Enemy {
       this.SX += 128;
       this.zombieSpriteTick = 0;
     }
-    if (this.zombieSpriteTick >= 30 && this.attacking) {
+    if (this.zombieSpriteTick >= 20 && this.attacking) {
       this.SX += 128;
       this.zombieSpriteTick = 0;
     }
@@ -46,17 +67,32 @@ class Enemy {
       this.SX = 0;
     }
     if (this.attacking) {
-      if (this.x > character.x) {
-        this.SY = 640;
-      }
-      if (this.x < character.x) {
-        this.SY = 896;
-      }
-      if (this.y > character.y) {
-        this.SY = 512;
-      }
-      if (this.y < character.y) {
-        this.SY = 768;
+      if (this.distanceY * this.distanceY > this.distanceX * this.distanceX) {
+        if (this.x > character.x) {
+          this.SY = 640;
+        }
+        if (this.x < character.x) {
+          this.SY = 896;
+        }
+        if (this.y > character.y) {
+          this.SY = 512;
+        }
+        if (this.y < character.y) {
+          this.SY = 768;
+        }
+      } else {
+        if (this.y > character.y) {
+          this.SY = 512;
+        }
+        if (this.y < character.y) {
+          this.SY = 768;
+        }
+        if (this.x > character.x) {
+          this.SY = 640;
+        }
+        if (this.x < character.x) {
+          this.SY = 896;
+        }
       }
       if (this.SX > 640) {
         this.SX = 0;
@@ -86,6 +122,7 @@ class Enemy {
 
       if (entity == character) {
         this.attacking = true;
+        this.zombieSpriteTick = 0;
         setTimeout(() => {
           this.attacking = false;
           if (
@@ -124,6 +161,6 @@ class Enemy {
 }
 
 let enemyType = {
-  zombie: { speed: 4 },
-  orc: { speed: 2 }
+  zombie: { speed: { min: 3, max: 5 } },
+  orc: { speed: { min: 1, max: 3 } }
 };
