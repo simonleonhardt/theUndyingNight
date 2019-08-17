@@ -184,7 +184,16 @@ let displayScore = () => {
 };
 
 let summonEnemy = (x, y, enemyType) => {
-  enemyArr.push(new Enemy(x, y, enemyType.speed, enemyType.color, enemyType));
+  enemyArr.push(
+    new Enemy(
+      x,
+      y,
+      Math.random() * (enemyType.speed.max - enemyType.speed.min) +
+        enemyType.speed.min,
+      enemyType.color,
+      enemyType
+    )
+  );
   entityArr.push(enemyArr[enemyArr.length - 1]);
 };
 
