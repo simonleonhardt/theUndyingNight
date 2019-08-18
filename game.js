@@ -201,7 +201,9 @@ let summonEnemy = (x, y, enemyType) => {
 let makeWave = (numOfZombs, numOfOrcs) => {
   if (enemyArr.length == 0) {
     wave++;
-    entityArr.splice(entityArr.indexOf[(swordArr[0], 1)]);
+    if (wave == 2) {
+      entityArr.splice(entityArr.indexOf(swordArr[0]), 1);
+    }
     for (let i = 0; i < numOfZombs; i++) {
       summonEnemy(
         Math.random() * canvas.width,
