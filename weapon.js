@@ -12,6 +12,14 @@ class Sword {
   };
 }
 
+let clearMultipleSwords = () => {
+  if (swordArr.length > 1) {
+    for (let i = 1; swordArr.length > i; ) {
+      swordArr.pop();
+    }
+  }
+};
+
 let destroySword = () => {
   swordArr.pop();
   entityArr.splice(entityArr.indexOf(swordArr[0]), 1);

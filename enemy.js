@@ -112,6 +112,7 @@ class Enemy {
   };
   checkCollision = entity => {
     if (
+      // Check if this enemy collides with any entity
       this.x <= entity.x + entity.width &&
       this.x + this.width >= entity.x &&
       this.y <= entity.y + entity.height &&
@@ -121,6 +122,7 @@ class Enemy {
       let vectorY = this.y + this.height / 2 - (entity.y + entity.height / 2);
 
       if (entity == character) {
+        // Is collision with character, then attack
         this.attacking = true;
         this.zombieSpriteTick = 0;
         setTimeout(() => {
@@ -139,6 +141,7 @@ class Enemy {
       }
 
       if (entity.physical) {
+        // Is collision with physical obj
         if (vectorX * vectorX > vectorY * vectorY) {
           if (vectorX > 0) {
             this.x = entity.x + entity.width;
@@ -153,6 +156,7 @@ class Enemy {
           }
         }
       } else {
+        // enitity dies
         entityArr.splice(entityArr.indexOf(this), 1);
         enemyArr.splice(enemyArr.indexOf(this), 1);
       }
