@@ -44,6 +44,7 @@ let startGame = () => {
     checkKeys();
     draw(character);
     update(character);
+    clearMultipleSwords();
     checkAllCollision();
     updateEnemies();
     displayScore();
@@ -200,6 +201,9 @@ let summonEnemy = (x, y, enemyType) => {
 let makeWave = (numOfZombs, numOfOrcs) => {
   if (enemyArr.length == 0) {
     wave++;
+    swordArr.forEach(() => {
+      swordArr.pop();
+    });
     for (let i = 0; i < numOfZombs; i++) {
       summonEnemy(
         Math.random() * canvas.width,
