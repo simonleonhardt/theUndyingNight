@@ -9,8 +9,10 @@ heroImg.src = "images/hero.png";
 let zombieImg = new Image();
 zombieImg.src = "images/zombie.png";
 let heroSX = 0;
-let heroSY = 82;
+let heroSY = 381;
 let swordExist = false;
+let heroAttacking = false;
+let heroLastFacing = "right";
 let heroSpriteTick = 0;
 let upKey = { key: "w", keyCode: 87 };
 let downKey = { key: "s", keyCode: 83 };
@@ -40,15 +42,13 @@ let startGame = () => {
   // Heartbeat
   let heartbeat = () => {
     makeWorld();
-    makeWave(Math.random() * 10, Math.random() * 5);
+    makeWave(Math.random() * 7, Math.random() * 4);
     checkKeys();
-    draw(character);
     update(character);
     clearMultipleSwords();
     checkAllCollision();
     updateEnemies();
     displayScore();
-    swordArr.length > 0 ? swordArr[0].draw() : null;
     allSpriteLoop();
     if (gameRunning) {
       window.requestAnimationFrame(heartbeat);
@@ -83,6 +83,9 @@ document.addEventListener("keyup", e => {
   if (e.keyCode == 65) {
     character.dx = 0;
   }
+  if (e.keyCode == 32) {
+    heroSX = 508;
+  }
 });
 
 // Draw Elements
@@ -112,64 +115,81 @@ let heroSpriteLoop = () => {
         keyCode == upKey.keyCode ||
         keyCode == downKey.keyCode ||
         keyCode == rightKey.keyCode ||
-        keyCode == leftKey.keyCode
+        keyCode == leftKey.keyCode ||
+        keyCode == 32
       )
-        heroSX += 32;
+        heroSX += 127;
+    } else {
+      heroSX = 0;
     }
     heroSpriteTick = 0;
   }
-  if (heroSX == 96) {
+  if (heroSX >= 1016 && !heroAttacking) {
     heroSX = 0;
+  }
+  if (heroSX >= 635 && heroAttacking) {
+    heroSX = 0;
+  }
+  if (heroAttacking) {
+    if (heroLastFacing == "down") {
+      heroSY = 756;
+    } else if (heroLastFacing == "up") {
+      heroSY = 504;
+    } else if (heroLastFacing == "right") {
+      heroSY = 882;
+    } else if (heroLastFacing == "left") {
+      heroSY = 630;
+    }
   }
   c.drawImage(
     heroImg,
     heroSX,
     heroSY,
-    32,
-    41,
-    character.x - 10,
-    character.y - 10,
-    75,
-    75
+    127,
+    126,
+    character.x - 20,
+    character.y - 20,
+    90,
+    90
   );
 };
 
 let checkKeys = () => {
   if (keyPressed) {
-    if (swordArr.length == 0) {
+    if (!heroAttacking) {
       if (keyCode == downKey.keyCode) {
         character.dy = 7;
-        character.swordX = 0;
-        character.swordY = 50;
-        heroSY = 0;
+        character.swordX = character.x + character.width / 2 - 17.5;
+        character.swordY = character.y + character.height + 10;
+        heroSY = 252;
+        heroLastFacing = "down";
       }
       if (keyCode == upKey.keyCode) {
         character.dy = -7;
-        character.swordX = 0;
-        character.swordY = -50;
-        heroSY = 123;
+        character.swordX = character.x + character.width / 2 - 17.5;
+        character.swordY = character.y - 35 - 10;
+        heroSY = 0;
+        heroLastFacing = "up";
       }
       if (keyCode == rightKey.keyCode) {
         character.dx = 7;
-        character.swordX = 50;
-        character.swordY = 0;
-        heroSY = 82;
+        character.swordX = character.x + character.width + 10;
+        character.swordY = character.y + character.height / 2 - 17.5;
+        heroSY = 378;
+        heroLastFacing = "right";
       }
       if (keyCode == leftKey.keyCode) {
         character.dx = -7;
-        character.swordX = -50;
-        character.swordY = 0;
-        heroSY = 41;
+        character.swordX = character.x - 35 - 10;
+        character.swordY = character.y + character.height / 2 - 17.5;
+        heroSY = 126;
+        heroLastFacing = "left";
       }
       if (keyCode == 32) {
-        swordArr.push(
-          new Sword(
-            character.x + character.swordX,
-            character.y + character.swordY
-          )
-        );
+        swordArr.push(new Sword(character.swordX, character.swordY));
         entityArr.push(swordArr[0]);
-        setTimeout(destroySword, 250);
+        heroAttacking = true;
+        setTimeout(destroySword, 500);
       }
       if (keyCode == 27) {
         makeMenu();
@@ -266,8 +286,8 @@ let makeMenu = () => {
   }
 
   document.querySelector("body").innerHTML =
-    "<img src='images/theUndyingNightLogoEdited.jpg' id='logo'>" +
-    "<img src='images/theUndyingNightTitleEdited.png' id='title'>" +
+    "<img src='images/theUndyingNightLogo.jpg' id='logo'>" +
+    "<img src='images/theUndyingNightTitle.png' id='title'>" +
     "<div id='playButton' class='button'>PLAY</div>" +
     "<div id='optionsButton' class='button'>OPTIONS</div>" +
     "<div id='quitButton' class='button'>QUIT</div>";

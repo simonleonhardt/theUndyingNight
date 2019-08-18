@@ -2,8 +2,8 @@ class Sword {
   constructor(x, y) {
     this.x = x;
     this.y = y;
-    this.width = 55;
-    this.height = 55;
+    this.width = 35;
+    this.height = 35;
     this.physical = false;
   }
   draw = () => {
@@ -23,4 +23,5 @@ let clearMultipleSwords = () => {
 let destroySword = () => {
   swordArr.pop();
   entityArr.splice(entityArr.indexOf(swordArr[0]), 1);
+  heroAttacking = false;
 };
