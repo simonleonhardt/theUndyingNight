@@ -5,6 +5,7 @@ class Sword {
     this.width = 35;
     this.height = 35;
     this.physical = false;
+    this.weapon = true;
   }
   draw = () => {
     c.fillStyle = "grey";

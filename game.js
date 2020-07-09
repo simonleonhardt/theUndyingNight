@@ -8,12 +8,17 @@ let heroImg = new Image();
 heroImg.src = "images/hero.png";
 let zombieImg = new Image();
 zombieImg.src = "images/zombie.png";
+let orcImg = new Image();
+orcImg.src = "images/orc.png";
+let coinImg = new Image();
+coinImg.src = "images/coin.png";
 let heroSX = 0;
 let heroSY = 381;
 let swordExist = false;
 let heroAttacking = false;
 let heroLastFacing = "right";
 let heroSpriteTick = 0;
+let coins = 0;
 let upKey = { key: "w", keyCode: 87 };
 let downKey = { key: "s", keyCode: 83 };
 let rightKey = { key: "d", keyCode: 68 };
@@ -21,6 +26,7 @@ let leftKey = { key: "a", keyCode: 65 };
 let enemyArr = [];
 let swordArr = [];
 let entityArr = [];
+let coinArr = [];
 let wave;
 
 // Start Game
@@ -48,6 +54,7 @@ let startGame = () => {
     clearMultipleSwords();
     checkAllCollision();
     updateEnemies();
+    updateCoins();
     displayScore();
     allSpriteLoop();
     if (gameRunning) {
@@ -64,12 +71,12 @@ let makeWorld = () => {
 };
 
 // Listen for key changes
-document.addEventListener("keydown", e => {
+document.addEventListener("keydown", (e) => {
   keyPressed = true;
   keyCode = e.keyCode;
 });
 
-document.addEventListener("keyup", e => {
+document.addEventListener("keyup", (e) => {
   keyPressed = false;
   if (e.keyCode == 83) {
     character.dy = 0;
@@ -89,22 +96,22 @@ document.addEventListener("keyup", e => {
 });
 
 // Draw Elements
-draw = elem => {};
+draw = (elem) => {};
 
 // Update Elements
-update = elem => {
+update = (elem) => {
   elem.x += elem.dx;
   elem.y += elem.dy;
 };
 
 let allSpriteLoop = () => {
   heroSpriteTick++;
-  enemyArr.forEach(enemy => {
-    enemy.zombieSpriteTick++;
+  enemyArr.forEach((enemy) => {
+    enemy.enemySpriteTick++;
   });
   heroSpriteLoop();
-  enemyArr.forEach(enemy => {
-    enemy.zombieSpriteLoop();
+  enemyArr.forEach((enemy) => {
+    enemy.enemySpriteLoop();
   });
 };
 
@@ -158,34 +165,44 @@ let checkKeys = () => {
   if (keyPressed) {
     if (!heroAttacking) {
       if (keyCode == downKey.keyCode) {
-        character.dy = 7;
-        character.swordX = character.x + character.width / 2 - 17.5;
-        character.swordY = character.y + character.height + 10;
-        heroSY = 252;
-        heroLastFacing = "down";
+        if (!heroAttacking) {
+          character.dy = 7;
+          character.swordX = character.x + character.width / 2 - 17.5;
+          character.swordY = character.y + character.height + 10;
+          heroSY = 252;
+          heroLastFacing = "down";
+        }
       }
       if (keyCode == upKey.keyCode) {
-        character.dy = -7;
-        character.swordX = character.x + character.width / 2 - 17.5;
-        character.swordY = character.y - 35 - 10;
-        heroSY = 0;
-        heroLastFacing = "up";
+        if (!heroAttacking) {
+          character.dy = -7;
+          character.swordX = character.x + character.width / 2 - 17.5;
+          character.swordY = character.y - 35 - 10;
+          heroSY = 0;
+          heroLastFacing = "up";
+        }
       }
       if (keyCode == rightKey.keyCode) {
-        character.dx = 7;
-        character.swordX = character.x + character.width + 10;
-        character.swordY = character.y + character.height / 2 - 17.5;
-        heroSY = 378;
-        heroLastFacing = "right";
+        if (!heroAttacking) {
+          character.dx = 7;
+          character.swordX = character.x + character.width + 10;
+          character.swordY = character.y + character.height / 2 - 17.5;
+          heroSY = 378;
+          heroLastFacing = "right";
+        }
       }
       if (keyCode == leftKey.keyCode) {
-        character.dx = -7;
-        character.swordX = character.x - 35 - 10;
-        character.swordY = character.y + character.height / 2 - 17.5;
-        heroSY = 126;
-        heroLastFacing = "left";
+        if (!heroAttacking) {
+          character.dx = -7;
+          character.swordX = character.x - 35 - 10;
+          character.swordY = character.y + character.height / 2 - 17.5;
+          heroSY = 126;
+          heroLastFacing = "left";
+        }
       }
       if (keyCode == 32) {
+        character.dx = 0;
+        character.dy = 0;
         swordArr.push(new Sword(character.swordX, character.swordY));
         entityArr.push(swordArr[0]);
         heroAttacking = true;
@@ -202,6 +219,7 @@ let displayScore = () => {
   c.font = "20px Arial";
   c.fillStyle = "white";
   c.fillText("Wave: " + wave, 25, 25);
+  c.fillText("Score: " + coins, window.innerWidth - 100, 25);
 };
 
 let summonEnemy = (x, y, enemyType) => {
@@ -242,7 +260,7 @@ let makeWave = (numOfZombs, numOfOrcs) => {
 };
 
 let updateEnemies = () => {
-  enemyArr.forEach(enemy => {
+  enemyArr.forEach((enemy) => {
     enemy.chasePlayer();
   });
 };
@@ -253,7 +271,7 @@ checkAllCollision = () => {
 };
 
 checkCharacterCollision = () => {
-  entityArr.forEach(collider => {
+  entityArr.forEach((collider) => {
     if (collider.physical) {
       if (collider != character) {
         character.checkCollision(collider);
@@ -263,13 +281,54 @@ checkCharacterCollision = () => {
 };
 
 checkEnemyCollision = () => {
-  enemyArr.forEach(enemy => {
-    entityArr.forEach(collider => {
+  enemyArr.forEach((enemy) => {
+    entityArr.forEach((collider) => {
       if (collider != enemy) {
         enemy.checkCollision(collider);
       }
     });
   });
+};
+
+class Coin {
+  constructor(x, y, value) {
+    this.x = x;
+    this.y = y;
+    this.SX = 0;
+    this.width = 25;
+    this.height = 25;
+    this.value = value;
+    this.coinSpriteTick = 0;
+  }
+  pickedUp = () => {
+    if (
+      this.x < character.x + character.width &&
+      this.x + this.width > character.x &&
+      this.y < character.y + character.height &&
+      this.y + this.height > character.y
+    ) {
+      coinArr.splice(coinArr.indexOf(this, 1));
+      coins += this.value;
+    }
+  };
+  coinSpriteLoop = () => {
+    this.coinSpriteTick++;
+    if (this.coinSpriteTick >= 10) {
+      this.SX += 50;
+      this.coinSpriteTick = 0;
+    }
+    if (this.SX == 300) {
+      this.SX = 0;
+    }
+    c.drawImage(coinImg, this.SX, 0, 50, 59, this.x, this.y, 50, 59);
+  };
+}
+
+let updateCoins = () => {
+  for (i = 0; i < coinArr.length; i++) {
+    coinArr[i].coinSpriteLoop();
+    coinArr[i].pickedUp();
+  }
 };
 
 // Make menu

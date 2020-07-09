@@ -7,10 +7,11 @@ class Character {
     this.width = width;
     this.height = height;
     this.physical = true;
+    this.weapon = false;
     this.swordX = this.x + this.width;
     this.swordY = this.y + this.height / 2 - 17.5;
   }
-  checkCollision = entity => {
+  checkCollision = (entity) => {
     if (
       this.x < entity.x + entity.width &&
       this.x + this.width > entity.x &&
