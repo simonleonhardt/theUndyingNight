@@ -19,6 +19,8 @@ let heroAttacking = false;
 let heroLastFacing = "right";
 let heroSpriteTick = 0;
 let coins = 0;
+let health = 200;
+let swordDamage = 15;
 let upKey = { key: "w", keyCode: 87 };
 let downKey = { key: "s", keyCode: 83 };
 let rightKey = { key: "d", keyCode: 68 };
@@ -55,7 +57,8 @@ let startGame = () => {
     checkAllCollision();
     updateEnemies();
     updateCoins();
-    displayScore();
+    drawScoreAndHealth();
+    updateHealth();
     allSpriteLoop();
     if (gameRunning) {
       window.requestAnimationFrame(heartbeat);
@@ -166,7 +169,7 @@ let checkKeys = () => {
     if (!heroAttacking) {
       if (keyCode == downKey.keyCode) {
         if (!heroAttacking) {
-          character.dy = 7;
+          character.dy = 4;
           character.swordX = character.x + character.width / 2 - 17.5;
           character.swordY = character.y + character.height + 10;
           heroSY = 252;
@@ -175,7 +178,7 @@ let checkKeys = () => {
       }
       if (keyCode == upKey.keyCode) {
         if (!heroAttacking) {
-          character.dy = -7;
+          character.dy = -4;
           character.swordX = character.x + character.width / 2 - 17.5;
           character.swordY = character.y - 35 - 10;
           heroSY = 0;
@@ -184,7 +187,7 @@ let checkKeys = () => {
       }
       if (keyCode == rightKey.keyCode) {
         if (!heroAttacking) {
-          character.dx = 7;
+          character.dx = 4;
           character.swordX = character.x + character.width + 10;
           character.swordY = character.y + character.height / 2 - 17.5;
           heroSY = 378;
@@ -193,7 +196,7 @@ let checkKeys = () => {
       }
       if (keyCode == leftKey.keyCode) {
         if (!heroAttacking) {
-          character.dx = -7;
+          character.dx = -4;
           character.swordX = character.x - 35 - 10;
           character.swordY = character.y + character.height / 2 - 17.5;
           heroSY = 126;
@@ -215,11 +218,21 @@ let checkKeys = () => {
   }
 };
 
-let displayScore = () => {
+let drawScoreAndHealth = () => {
   c.font = "20px Arial";
   c.fillStyle = "white";
   c.fillText("Wave: " + wave, 25, 25);
-  c.fillText("Score: " + coins, window.innerWidth - 100, 25);
+  c.fillText("Score: " + coins, 25, 50);
+  c.fillStyle = "grey";
+  c.fillRect(25, 60, 100, 25);
+  c.fillStyle = "#D12B2B";
+  c.fillRect(25, 60, health / 2, 25);
+};
+
+let updateHealth = () => {
+  if (health <= 0) {
+    makeMenu();
+  }
 };
 
 let summonEnemy = (x, y, enemyType) => {
@@ -343,6 +356,9 @@ let makeMenu = () => {
   for (let i = 0; i < swordArr.length; ) {
     swordArr.pop();
   }
+  health = 200;
+  swordDamage = 15;
+  coins = 0;
 
   document.querySelector("body").innerHTML =
     "<img src='images/theUndyingNightLogo.jpg' id='logo'>" +

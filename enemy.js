@@ -8,6 +8,14 @@ class Enemy {
     this.weapon = false;
     this.type = type;
     this.speed = speed;
+    this.attack = Math.round(
+      Math.random() * (this.type.attack.max - this.type.attack.min) +
+        this.type.attack.min
+    );
+    this.health = Math.round(
+      Math.random() * (this.type.health.max - this.type.health.min) +
+        this.type.health.min
+    );
     this.color = color;
     this.attacking = false;
     this.enemySpriteTick = 0;
@@ -62,7 +70,7 @@ class Enemy {
       this.SX += 128;
       this.enemySpriteTick = 0;
     }
-    if (this.enemySpriteTick >= 25 && this.attacking) {
+    if (this.enemySpriteTick >= 10 && this.attacking) {
       this.SX += 128;
       this.enemySpriteTick = 0;
     }
@@ -123,7 +131,7 @@ class Enemy {
       let vectorX = (this.x + this.width) / 2 - (entity.x + entity.width) / 2;
       let vectorY = (this.y + this.height) / 2 - (entity.y + entity.height) / 2;
 
-      if (entity == character) {
+      if (entity == character && !this.attacking) {
         // Is collision with character, then attack
         this.attacking = true;
         setTimeout(() => {
@@ -135,10 +143,10 @@ class Enemy {
             this.y + this.height >= character.y
           ) {
             if (entityArr.indexOf(this) >= 0) {
-              makeMenu();
+              health -= this.attack;
             }
           }
-        }, 2000);
+        }, 1000);
       }
 
       if (!entity.weapon && this.physical) {
@@ -158,20 +166,23 @@ class Enemy {
         }
       }
       if (entity.weapon) {
-        // enitity dies
-        entityArr.splice(entityArr.indexOf(this), 1);
-        enemyArr.splice(enemyArr.indexOf(this), 1);
-        coinArr.push(
-          new Coin(
-            this.x,
-            this.y,
-            Math.round(
-              Math.random() *
-                (this.type.coinDrop.max - this.type.coinDrop.min) +
-                this.type.coinDrop.min
+        this.health -= swordDamage;
+        if (this.health <= 0) {
+          entityArr.splice(entityArr.indexOf(this), 1);
+          enemyArr.splice(enemyArr.indexOf(this), 1);
+
+          coinArr.push(
+            new Coin(
+              this.x,
+              this.y,
+              Math.round(
+                Math.random() *
+                  (this.type.coinDrop.max - this.type.coinDrop.min) +
+                  this.type.coinDrop.min
+              )
             )
-          )
-        );
+          );
+        }
       }
     }
   };
@@ -182,10 +193,14 @@ let enemyType = {
     typeName: "zombie",
     speed: { min: 3, max: 5 },
     coinDrop: { min: 0, max: 3 },
+    attack: { min: 10, max: 20 },
+    health: { min: 30, max: 50 },
   },
   orc: {
     typeName: "orc",
     speed: { min: 1, max: 3 },
     coinDrop: { min: 1, max: 4 },
+    attack: { min: 15, max: 30 },
+    health: { min: 45, max: 70 },
   },
 };
