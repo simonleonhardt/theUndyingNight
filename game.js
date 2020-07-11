@@ -21,6 +21,7 @@ let heroSpriteTick = 0;
 let coins = 0;
 let health = 200;
 let swordDamage = 15;
+let swordDamageTick = 0;
 let upKey = { key: "w", keyCode: 87 };
 let downKey = { key: "s", keyCode: 83 };
 let rightKey = { key: "d", keyCode: 68 };
@@ -55,6 +56,7 @@ let startGame = () => {
     update(character);
     clearMultipleSwords();
     checkAllCollision();
+    swordDamageTickFunction();
     updateEnemies();
     updateCoins();
     drawScoreAndHealth();
@@ -223,7 +225,7 @@ let drawScoreAndHealth = () => {
   c.fillStyle = "white";
   c.fillText("Wave: " + wave, 25, 25);
   c.fillText("Score: " + coins, 25, 50);
-  c.fillStyle = "grey";
+  c.fillStyle = "#646262";
   c.fillRect(25, 60, 100, 25);
   c.fillStyle = "#D12B2B";
   c.fillRect(25, 60, health / 2, 25);
@@ -235,30 +237,34 @@ let updateHealth = () => {
   }
 };
 
-let summonEnemy = (x, y, enemyType) => {
-  enemyArr.push(
-    new Enemy(
-      x,
-      y,
-      Math.random() * (enemyType.speed.max - enemyType.speed.min) +
-        enemyType.speed.min,
-      enemyType.color,
-      enemyType
-    )
-  );
-  entityArr.push(enemyArr[enemyArr.length - 1]);
+let swordDamageTickFunction = () => {
+  swordDamageTick++;
+  if (swordDamageTick == 11) {
+    swordDamageTick = 0;
+  }
+};
+
+let summonEnemy = (x, y, width, height, physical, enemyType) => {
+  if (enemyType.typeName == "zombie") {
+    enemyArr.push(new Zombie(x, y, width, height, physical, enemyType));
+    entityArr.push(enemyArr[enemyArr.length - 1]);
+  }
+  if (enemyType.typeName == "orc") {
+    enemyArr.push(new Orc(x, y, width, height, physical, enemyType));
+    entityArr.push(enemyArr[enemyArr.length - 1]);
+  }
 };
 
 let makeWave = (numOfZombs, numOfOrcs) => {
   if (enemyArr.length == 0) {
     wave++;
-    if (wave == 2) {
-      entityArr.splice(entityArr.indexOf(swordArr[0]), 1);
-    }
     for (let i = 0; i < numOfZombs; i++) {
       summonEnemy(
         Math.random() * canvas.width,
         Math.random() * canvas.height,
+        55,
+        75,
+        true,
         enemyType.zombie
       );
     }
@@ -266,6 +272,9 @@ let makeWave = (numOfZombs, numOfOrcs) => {
       summonEnemy(
         Math.random() * canvas.width,
         Math.random() * canvas.height,
+        55,
+        75,
+        true,
         enemyType.orc
       );
     }
