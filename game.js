@@ -12,19 +12,30 @@ let orcImg = new Image();
 orcImg.src = "images/orc.png";
 let coinImg = new Image();
 coinImg.src = "images/coin.png";
+let arrowImg = new Image();
+arrowImg.src = "images/arrow.png";
 let heroSX = 0;
 let heroSY = 381;
 let swordExist = false;
 let heroAttacking = false;
+let swingingSword = false;
+let shootingBow = false;
 let heroLastFacing = "right";
 let heroSpriteTick = 0;
 let coins = 0;
-let upKey = { key: "w", keyCode: 87 };
-let downKey = { key: "s", keyCode: 83 };
-let rightKey = { key: "d", keyCode: 68 };
-let leftKey = { key: "a", keyCode: 65 };
+let health = 200;
+let swordDamage = 15;
+let swordDamageTick = 0;
+let bowDamage = 10;
+let upKey = { key: "w", keyCode: 87, pressed: false };
+let downKey = { key: "s", keyCode: 83, pressed: false };
+let rightKey = { key: "d", keyCode: 68, pressed: false };
+let leftKey = { key: "a", keyCode: 65, pressed: false };
+let swordKey = { key: "space", keyCode: 32, pressed: false };
+let bowKey = { key: "e", keyCode: 69, pressed: false };
 let enemyArr = [];
 let swordArr = [];
+let arrowArr = [];
 let entityArr = [];
 let coinArr = [];
 let wave;
@@ -53,9 +64,12 @@ let startGame = () => {
     update(character);
     clearMultipleSwords();
     checkAllCollision();
+    swordDamageTickFunction();
     updateEnemies();
+    updateArrows();
     updateCoins();
-    displayScore();
+    drawScoreAndHealth();
+    updateHealth();
     allSpriteLoop();
     if (gameRunning) {
       window.requestAnimationFrame(heartbeat);
@@ -74,21 +88,27 @@ let makeWorld = () => {
 document.addEventListener("keydown", (e) => {
   keyPressed = true;
   keyCode = e.keyCode;
+  if (keyCode == upKey.keyCode) {
+    upKey.pressed = true;
+  } else if (keyCode == downKey.keyCode) {
+    downKey.pressed = true;
+  } else if (keyCode == rightKey.keyCode) {
+    rightKey.pressed = true;
+  } else if (keyCode == leftKey.keyCode) {
+    leftKey.pressed = true;
+  }
 });
 
 document.addEventListener("keyup", (e) => {
   keyPressed = false;
-  if (e.keyCode == 83) {
-    character.dy = 0;
-  }
-  if (e.keyCode == 87) {
-    character.dy = 0;
-  }
-  if (e.keyCode == 68) {
-    character.dx = 0;
-  }
-  if (e.keyCode == 65) {
-    character.dx = 0;
+  if (e.keyCode == upKey.keyCode) {
+    upKey.pressed = false;
+  } else if (e.keyCode == downKey.keyCode) {
+    downKey.pressed = false;
+  } else if (e.keyCode == rightKey.keyCode) {
+    rightKey.pressed = false;
+  } else if (e.keyCode == leftKey.keyCode) {
+    leftKey.pressed = false;
   }
   if (e.keyCode == 32) {
     heroSX = 508;
@@ -113,6 +133,9 @@ let allSpriteLoop = () => {
   enemyArr.forEach((enemy) => {
     enemy.enemySpriteLoop();
   });
+  arrowArr.forEach((arrow) => {
+    arrow.spriteLoop();
+  });
 };
 
 let heroSpriteLoop = () => {
@@ -123,9 +146,15 @@ let heroSpriteLoop = () => {
         keyCode == downKey.keyCode ||
         keyCode == rightKey.keyCode ||
         keyCode == leftKey.keyCode ||
-        keyCode == 32
-      )
-        heroSX += 127;
+        swingingSword ||
+        shootingBow
+      ) {
+        if (!shootingBow) {
+          heroSX += 127;
+        } else if (shootingBow) {
+          heroSX += 129;
+        }
+      }
     } else {
       heroSX = 0;
     }
@@ -134,10 +163,13 @@ let heroSpriteLoop = () => {
   if (heroSX >= 1016 && !heroAttacking) {
     heroSX = 0;
   }
-  if (heroSX >= 635 && heroAttacking) {
+  if (heroSX >= 635 && swingingSword) {
     heroSX = 0;
   }
-  if (heroAttacking) {
+  if (heroSX >= 1600 && shootingBow) {
+    heroSX = 774;
+  }
+  if (swingingSword) {
     if (heroLastFacing == "down") {
       heroSY = 756;
     } else if (heroLastFacing == "up") {
@@ -146,6 +178,27 @@ let heroSpriteLoop = () => {
       heroSY = 882;
     } else if (heroLastFacing == "left") {
       heroSY = 630;
+    }
+  }
+  if (shootingBow) {
+    if (heroLastFacing == "down") {
+      heroSY = 1294;
+    } else if (heroLastFacing == "up") {
+      heroSY = 1000;
+    } else if (heroLastFacing == "right") {
+      heroSY = 1415;
+    } else if (heroLastFacing == "left") {
+      heroSY = 1142;
+    }
+  } else {
+    if (heroLastFacing == "down") {
+      heroSY = 252;
+    } else if (heroLastFacing == "up") {
+      heroSY = 0;
+    } else if (heroLastFacing == "right") {
+      heroSY = 378;
+    } else if (heroLastFacing == "left") {
+      heroSY = 126;
     }
   }
   c.drawImage(
@@ -162,90 +215,150 @@ let heroSpriteLoop = () => {
 };
 
 let checkKeys = () => {
-  if (keyPressed) {
-    if (!heroAttacking) {
-      if (keyCode == downKey.keyCode) {
-        if (!heroAttacking) {
-          character.dy = 7;
-          character.swordX = character.x + character.width / 2 - 17.5;
-          character.swordY = character.y + character.height + 10;
-          heroSY = 252;
-          heroLastFacing = "down";
-        }
-      }
-      if (keyCode == upKey.keyCode) {
-        if (!heroAttacking) {
-          character.dy = -7;
-          character.swordX = character.x + character.width / 2 - 17.5;
-          character.swordY = character.y - 35 - 10;
-          heroSY = 0;
-          heroLastFacing = "up";
-        }
-      }
-      if (keyCode == rightKey.keyCode) {
-        if (!heroAttacking) {
-          character.dx = 7;
-          character.swordX = character.x + character.width + 10;
-          character.swordY = character.y + character.height / 2 - 17.5;
-          heroSY = 378;
-          heroLastFacing = "right";
-        }
-      }
-      if (keyCode == leftKey.keyCode) {
-        if (!heroAttacking) {
-          character.dx = -7;
-          character.swordX = character.x - 35 - 10;
-          character.swordY = character.y + character.height / 2 - 17.5;
-          heroSY = 126;
-          heroLastFacing = "left";
-        }
-      }
-      if (keyCode == 32) {
+  if (upKey.pressed == false && downKey.pressed == false) {
+    character.dy = 0;
+  }
+  if (rightKey.pressed == false && leftKey.pressed == false) {
+    character.dx = 0;
+  }
+  if (!heroAttacking) {
+    if (downKey.pressed) {
+      character.dy = 4;
+      character.swordX = character.x + character.width / 2 - 17.5;
+      character.swordY = character.y + character.height + 10;
+      heroSY = 252;
+      heroLastFacing = "down";
+    }
+    if (upKey.pressed) {
+      character.dy = -4;
+      character.swordX = character.x + character.width / 2 - 17.5;
+      character.swordY = character.y - 35 - 10;
+      heroSY = 0;
+      heroLastFacing = "up";
+    }
+
+    if (rightKey.pressed) {
+      character.dx = 4;
+      character.swordX = character.x + character.width + 10;
+      character.swordY = character.y + character.height / 2 - 17.5;
+      heroSY = 378;
+      heroLastFacing = "right";
+    }
+    if (leftKey.pressed) {
+      character.dx = -4;
+      character.swordX = character.x - 35 - 10;
+      character.swordY = character.y + character.height / 2 - 17.5;
+      heroSY = 126;
+      heroLastFacing = "left";
+    }
+    if (keyCode == swordKey.keyCode) {
+      /*heroAttacking = true;
+        swingingSword = true;
         character.dx = 0;
-        character.dy = 0;
-        swordArr.push(new Sword(character.swordX, character.swordY));
-        entityArr.push(swordArr[0]);
-        heroAttacking = true;
-        setTimeout(destroySword, 500);
-      }
-      if (keyCode == 27) {
-        makeMenu();
-      }
+        character.dy = 0;*/
+      swordArr.push(new Sword(character.swordX, character.swordY));
+      entityArr.push(swordArr[0]);
+      setTimeout(destroySword, 100);
+    }
+    if (keyCode == bowKey.keyCode) {
+      /*heroAttacking = true;
+        shootingBow = true;
+        character.dx = 0;
+        character.dy = 0;*/
+      arrowArr.push(
+        new Arrow(
+          heroLastFacing == "up" || "down"
+            ? character.x + character.width / 2 - 10
+            : heroLastFacing == "right"
+            ? character.x + character.width + 5
+            : heroLastFacing == "left"
+            ? character.x - 5
+            : null,
+          heroLastFacing == "left" || "right"
+            ? character.y + character.height / 2 - 10
+            : heroLastFacing == "up"
+            ? character.y - 5
+            : heroLastFacing == "down"
+            ? character.y + character.width + 5
+            : null,
+          10,
+          10,
+          heroLastFacing == "right" ? 5 : heroLastFacing == "left" ? -5 : null,
+          heroLastFacing == "up" ? -5 : heroLastFacing == "down" ? 5 : null,
+          heroLastFacing == "up"
+            ? 0
+            : heroLastFacing == "down"
+            ? 193
+            : heroLastFacing == "left"
+            ? 114
+            : heroLastFacing == "right"
+            ? 303
+            : null
+        )
+      );
+      entityArr.push(arrowArr[arrowArr.length - 1]);
+      setTimeout(() => {
+        heroAttacking = false;
+        shootingBow = false;
+      }, 1000);
+    }
+    if (keyCode == 27) {
+      makeMenu();
     }
   }
 };
 
-let displayScore = () => {
+let drawScoreAndHealth = () => {
   c.font = "20px Arial";
   c.fillStyle = "white";
   c.fillText("Wave: " + wave, 25, 25);
-  c.fillText("Score: " + coins, window.innerWidth - 100, 25);
+  c.fillText("Score: " + coins, 25, 50);
+  c.fillStyle = "#646262";
+  c.fillRect(25, 60, 100, 25);
+  c.fillStyle = "#D12B2B";
+  c.fillRect(25, 60, health / 2, 25);
 };
 
-let summonEnemy = (x, y, enemyType) => {
-  enemyArr.push(
-    new Enemy(
-      x,
-      y,
-      Math.random() * (enemyType.speed.max - enemyType.speed.min) +
-        enemyType.speed.min,
-      enemyType.color,
-      enemyType
-    )
-  );
-  entityArr.push(enemyArr[enemyArr.length - 1]);
+let updateHealth = () => {
+  if (health <= 0) {
+    makeMenu();
+  }
+};
+
+let swordDamageTickFunction = () => {
+  swordDamageTick++;
+  if (swordDamageTick == 11) {
+    swordDamageTick = 0;
+  }
+};
+
+let updateArrows = () => {
+  arrowArr.forEach((arrow) => {
+    arrow.update();
+  });
+};
+
+let summonEnemy = (x, y, width, height, physical, enemyType) => {
+  if (enemyType.typeName == "zombie") {
+    enemyArr.push(new Zombie(x, y, width, height, physical, enemyType));
+    entityArr.push(enemyArr[enemyArr.length - 1]);
+  }
+  if (enemyType.typeName == "orc") {
+    enemyArr.push(new Orc(x, y, width, height, physical, enemyType));
+    entityArr.push(enemyArr[enemyArr.length - 1]);
+  }
 };
 
 let makeWave = (numOfZombs, numOfOrcs) => {
   if (enemyArr.length == 0) {
     wave++;
-    if (wave == 2) {
-      entityArr.splice(entityArr.indexOf(swordArr[0]), 1);
-    }
     for (let i = 0; i < numOfZombs; i++) {
       summonEnemy(
         Math.random() * canvas.width,
         Math.random() * canvas.height,
+        55,
+        75,
+        true,
         enemyType.zombie
       );
     }
@@ -253,6 +366,9 @@ let makeWave = (numOfZombs, numOfOrcs) => {
       summonEnemy(
         Math.random() * canvas.width,
         Math.random() * canvas.height,
+        55,
+        75,
+        true,
         enemyType.orc
       );
     }
@@ -343,6 +459,9 @@ let makeMenu = () => {
   for (let i = 0; i < swordArr.length; ) {
     swordArr.pop();
   }
+  health = 200;
+  swordDamage = 15;
+  coins = 0;
 
   document.querySelector("body").innerHTML =
     "<img src='images/theUndyingNightLogo.jpg' id='logo'>" +

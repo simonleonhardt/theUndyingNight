@@ -35,5 +35,17 @@ class Character {
         }
       }
     }
+    if (this.x <= 0) {
+      this.x = 0;
+    }
+    if (this.x + this.width >= window.innerWidth) {
+      this.x = window.innerWidth - this.width;
+    }
+    if (this.y <= 10) {
+      this.y = 10;
+    }
+    if (this.y + this.height > window.innerHeight) {
+      this.y = window.innerHeight - this.height;
+    }
   };
 }
