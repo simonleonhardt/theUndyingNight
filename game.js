@@ -252,19 +252,19 @@ let checkKeys = () => {
       heroLastFacing = "left";
     }
     if (keyCode == swordKey.keyCode) {
-      /*heroAttacking = true;
+      heroAttacking = true;
         swingingSword = true;
         character.dx = 0;
-        character.dy = 0;*/
+        character.dy = 0;
       swordArr.push(new Sword(character.swordX, character.swordY));
       entityArr.push(swordArr[0]);
       setTimeout(destroySword, 100);
     }
     if (keyCode == bowKey.keyCode) {
-      /*heroAttacking = true;
+      heroAttacking = true;
         shootingBow = true;
         character.dx = 0;
-        character.dy = 0;*/
+        character.dy = 0;
       arrowArr.push(
         new Arrow(
           heroLastFacing == "up" || "down"
