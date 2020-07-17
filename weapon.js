@@ -25,4 +25,46 @@ let destroySword = () => {
   swordArr.pop();
   entityArr.splice(entityArr.indexOf(swordArr[0]), 1);
   heroAttacking = false;
+  swingingSword = false;
 };
+
+class Arrow {
+  constructor(x, y, width, height, dx, dy, sy) {
+    this.x = x;
+    this.y = y;
+    this.width = width;
+    this.height = height;
+    this.dx = dx;
+    this.dy = dy;
+    this.sx = 0;
+    this.sy = sy;
+    this.physical = false;
+    this.weapon = true;
+  }
+  update = () => {
+    this.x += this.dx;
+    this.y += this.dy;
+    if (
+      this.x > window.innerWidth + 20 ||
+      this.x < -20 ||
+      this.y > window.innerHeight + 20 ||
+      this.y < -20
+    ) {
+      arrowArr.splice(arrowArr.indexOf(this), 1);
+      entityArr.splice(entityArr.indexOf(this), 1);
+    }
+  };
+  spriteLoop = () => {
+    c.drawImage(
+      arrowImg,
+      this.sx,
+      this.sy,
+      139,
+      102,
+      this.x - 15,
+      this.y - 15,
+      50,
+      50
+    );
+  };
+}

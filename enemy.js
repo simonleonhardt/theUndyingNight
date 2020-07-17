@@ -174,9 +174,13 @@ class Zombie extends Enemy {
         }
       }
       if (entity.weapon) {
-        if (swordDamageTick == 10) {
+        if (swordDamageTick == 10 && entity == swordArr[0]) {
           this.health -= swordDamage;
         }
+        arrowArr.forEach((arrow) => {
+          entity == arrow ? (this.health -= bowDamage) : null;
+          arrowArr.splice(arrowArr.indexOf(arrow, 1));
+        });
         if (this.health <= 0) {
           entityArr.splice(entityArr.indexOf(this), 1);
           enemyArr.splice(enemyArr.indexOf(this), 1);
@@ -347,9 +351,13 @@ class Orc extends Enemy {
         }
       }
       if (entity.weapon) {
-        if (swordDamageTick == 10) {
+        if (swordDamageTick == 10 && entity == swordArr[0]) {
           this.health -= swordDamage;
         }
+        arrowArr.forEach((arrow) => {
+          entity == arrow ? (this.health -= bowDamage) : null;
+          arrowArr.splice(arrowArr.indexOf(arrow, 1));
+        });
         if (this.health <= 0) {
           entityArr.splice(entityArr.indexOf(this), 1);
           enemyArr.splice(enemyArr.indexOf(this), 1);
