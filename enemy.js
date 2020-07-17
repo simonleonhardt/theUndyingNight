@@ -157,7 +157,7 @@ class Zombie extends Enemy {
         }, Math.round(Math.random() * (this.type.attackSpeed.max - this.type.attackSpeed.min) + this.type.attackSpeed.min));
       }
 
-      if (!entity.weapon && this.physical) {
+      if (!entity.weapon && entity.physical) {
         // Is collision with physical obj
         if (vectorX * vectorX > vectorY * vectorY) {
           if (vectorX > 0) {
@@ -334,7 +334,7 @@ class Orc extends Enemy {
         }, Math.round(Math.random() * (this.type.attackSpeed.max - this.type.attackSpeed.min) + this.type.attackSpeed.min));
       }
 
-      if (!entity.weapon && this.physical) {
+      if (!entity.weapon && entity.physical) {
         // Is collision with physical obj
         if (vectorX * vectorX > vectorY * vectorY) {
           if (vectorX > 0) {
@@ -379,6 +379,57 @@ class Orc extends Enemy {
   };
 }
 
+class Boulder extends Enemy {
+  constructor(...args) {
+    super(...args);
+  }
+  checkCollision = (entity) => {
+    if (
+      // Check if this enemy collides with any entity
+      this.x <= entity.x + entity.width &&
+      this.x + this.width >= entity.x &&
+      this.y <= entity.y + entity.height &&
+      this.y + this.height >= entity.y
+    ) {
+      let vectorX = (this.x + this.width) / 2 - (entity.x + entity.width) / 2;
+      let vectorY = (this.y + this.height) / 2 - (entity.y + entity.height) / 2;
+      if (!entity.weapon && entity.physical) {
+        // Is collision with physical obj
+        if (vectorX * vectorX > vectorY * vectorY) {
+          if (vectorX > 0) {
+            this.x = entity.x + entity.width;
+          } else {
+            this.x = entity.x - this.width;
+          }
+        } else {
+          if (vectorY > 0) {
+            this.y = entity.y + entity.height;
+          } else {
+            this.y = entity.y - this.height;
+          }
+        }
+      }
+      if (entity.weapon) {
+        swordDamageTick == 10 && entity == swordArr[0]
+          ? (this.health -= swordDamage)
+          : null;
+        arrowArr.forEach((arrow) => {
+          entity == arrow ? (this.health -= bowDamage) : null;
+          arrowArr.splice(arrowArr.indexOf(arrow, 1));
+        });
+        if (this.health <= 0) {
+          entityArr.splice(entityArr.indexOf(this), 1);
+          boulderArr.splice(boulderArr.indexOf(this), 1);
+        }
+      }
+    }
+  };
+  drawBoulder = () => {
+    c.fillStyle = "grey";
+    c.fillRect(this.x, this.y, this.width, this.height);
+  };
+}
+
 let enemyType = {
   zombie: {
     typeName: "zombie",
@@ -395,5 +446,13 @@ let enemyType = {
     damage: { min: 15, max: 30 },
     attackSpeed: { min: 1500, max: 2500 },
     health: { min: 45, max: 70 },
+  },
+  boulder: {
+    typeName: "boulder",
+    speed: { min: 4, max: 6 },
+    coinDrop: null,
+    damage: { min: 30, max: 40 },
+    attackSpeed: null,
+    health: { min: 20, max: 30 },
   },
 };

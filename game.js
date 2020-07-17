@@ -38,6 +38,7 @@ let swordArr = [];
 let arrowArr = [];
 let entityArr = [];
 let coinArr = [];
+let boulderArr = [];
 let wave;
 
 // Start Game
@@ -59,7 +60,7 @@ let startGame = () => {
   // Heartbeat
   let heartbeat = () => {
     makeWorld();
-    makeWave(Math.random() * 7, Math.random() * 4);
+    makeWave(/*Math.random() * 7*/ 0, /*Math.random() * 4*/ 0);
     checkKeys();
     update(character);
     clearMultipleSwords();
@@ -253,18 +254,18 @@ let checkKeys = () => {
     }
     if (keyCode == swordKey.keyCode) {
       heroAttacking = true;
-        swingingSword = true;
-        character.dx = 0;
-        character.dy = 0;
+      swingingSword = true;
+      character.dx = 0;
+      character.dy = 0;
       swordArr.push(new Sword(character.swordX, character.swordY));
       entityArr.push(swordArr[0]);
       setTimeout(destroySword, 100);
     }
     if (keyCode == bowKey.keyCode) {
       heroAttacking = true;
-        shootingBow = true;
-        character.dx = 0;
-        character.dy = 0;
+      shootingBow = true;
+      character.dx = 0;
+      character.dy = 0;
       arrowArr.push(
         new Arrow(
           heroLastFacing == "up" || "down"
@@ -347,6 +348,10 @@ let summonEnemy = (x, y, width, height, physical, enemyType) => {
     enemyArr.push(new Orc(x, y, width, height, physical, enemyType));
     entityArr.push(enemyArr[enemyArr.length - 1]);
   }
+  if (enemyType.typeName == "boulder") {
+    boulderArr.push(new Boulder(x, y, width, height, physical, enemyType));
+    entityArr.push(boulderArr[boulderArr.length - 1]);
+  }
 };
 
 let makeWave = (numOfZombs, numOfOrcs) => {
@@ -384,6 +389,7 @@ let updateEnemies = () => {
 checkAllCollision = () => {
   checkCharacterCollision();
   checkEnemyCollision();
+  checkOtherCollision();
 };
 
 checkCharacterCollision = () => {
@@ -401,6 +407,16 @@ checkEnemyCollision = () => {
     entityArr.forEach((collider) => {
       if (collider != enemy) {
         enemy.checkCollision(collider);
+      }
+    });
+  });
+};
+
+checkOtherCollision = () => {
+  boulderArr.forEach((boulder) => {
+    entityArr.forEach((collider) => {
+      if (collider != boulder) {
+        boulder.checkCollision(collider);
       }
     });
   });
