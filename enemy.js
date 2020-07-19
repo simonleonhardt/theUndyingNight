@@ -102,31 +102,17 @@ class Zombie extends Enemy {
         this.SX = 0;
       }
     }
-    if (this.type.typeName == "zombie") {
-      c.drawImage(
-        zombieImg,
-        this.SX,
-        this.SY,
-        128,
-        128,
-        this.x - 30,
-        this.y - 20,
-        110,
-        110
-      );
-    } else if (this.type.typeName == "orc") {
-      c.drawImage(
-        orcImg,
-        this.SX,
-        this.SY,
-        128,
-        128,
-        this.x - 30,
-        this.y - 20,
-        110,
-        110
-      );
-    }
+    c.drawImage(
+      zombieImg,
+      this.SX,
+      this.SY,
+      128,
+      128,
+      this.x - 30,
+      this.y - 20,
+      110,
+      110
+    );
   };
   checkCollision = (entity) => {
     if (
@@ -143,7 +129,6 @@ class Zombie extends Enemy {
         // Is collision with character, then attack
         this.attacking = true;
         setTimeout(() => {
-          this.attacking = false;
           if (
             this.x <= character.x + character.width &&
             this.x + this.width >= character.x &&
@@ -154,6 +139,7 @@ class Zombie extends Enemy {
               health -= this.damage;
             }
           }
+          this.attacking = false;
         }, Math.round(Math.random() * (this.type.attackSpeed.max - this.type.attackSpeed.min) + this.type.attackSpeed.min));
       }
 
@@ -178,8 +164,17 @@ class Zombie extends Enemy {
           this.health -= swordDamage;
         }
         arrowArr.forEach((arrow) => {
-          entity == arrow ? (this.health -= bowDamage) : null;
-          arrowArr.splice(arrowArr.indexOf(arrow, 1));
+          if (
+            entity == arrow &&
+            this.x <= entity.x + entity.width &&
+            this.x + this.width >= entity.x &&
+            this.y <= entity.y + entity.height &&
+            this.y + this.height >= entity.y
+          ) {
+            this.health -= bowDamage;
+            arrowArr.splice(arrowArr.indexOf(entity), 1);
+            entityArr.splice(entityArr.indexOf(entity), 1);
+          }
         });
         if (this.health <= 0) {
           entityArr.splice(entityArr.indexOf(this), 1);
@@ -279,31 +274,17 @@ class Orc extends Enemy {
         this.SX = 0;
       }
     }
-    if (this.type.typeName == "zombie") {
-      c.drawImage(
-        zombieImg,
-        this.SX,
-        this.SY,
-        128,
-        128,
-        this.x - 30,
-        this.y - 20,
-        110,
-        110
-      );
-    } else if (this.type.typeName == "orc") {
-      c.drawImage(
-        orcImg,
-        this.SX,
-        this.SY,
-        128,
-        128,
-        this.x - 30,
-        this.y - 20,
-        110,
-        110
-      );
-    }
+    c.drawImage(
+      orcImg,
+      this.SX,
+      this.SY,
+      128,
+      128,
+      this.x - 30,
+      this.y - 20,
+      110,
+      110
+    );
   };
   checkCollision = (entity) => {
     if (
@@ -355,8 +336,17 @@ class Orc extends Enemy {
           this.health -= swordDamage;
         }
         arrowArr.forEach((arrow) => {
-          entity == arrow ? (this.health -= bowDamage) : null;
-          arrowArr.splice(arrowArr.indexOf(arrow, 1));
+          if (
+            entity == arrow &&
+            this.x <= entity.x + entity.width &&
+            this.x + this.width >= entity.x &&
+            this.y <= entity.y + entity.height &&
+            this.y + this.height >= entity.y
+          ) {
+            this.health -= bowDamage;
+            arrowArr.splice(arrowArr.indexOf(entity), 1);
+            entityArr.splice(entityArr.indexOf(entity), 1);
+          }
         });
         if (this.health <= 0) {
           entityArr.splice(entityArr.indexOf(this), 1);
@@ -373,6 +363,7 @@ class Orc extends Enemy {
               )
             )
           );
+          entityArr.push(coinArr[coinArr.length - 1]);
         }
       }
     }
@@ -386,7 +377,7 @@ let enemyType = {
     coinDrop: { min: 0, max: 3 },
     damage: { min: 10, max: 20 },
     attackSpeed: { min: 500, max: 1500 },
-    health: { min: 30, max: 50 },
+    health: { min: 30, max: 45 },
   },
   orc: {
     typeName: "orc",
@@ -394,6 +385,6 @@ let enemyType = {
     coinDrop: { min: 1, max: 4 },
     damage: { min: 15, max: 30 },
     attackSpeed: { min: 1500, max: 2500 },
-    health: { min: 45, max: 70 },
+    health: { min: 45, max: 60 },
   },
 };
