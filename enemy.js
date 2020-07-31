@@ -32,6 +32,7 @@ class Zombie extends Enemy {
     this.SX = 0;
     this.SY = 0;
   }
+  //Chases the player
   chasePlayer = () => {
     if (!this.attacking) {
       if (this.distanceY * this.distanceY > this.distanceX * this.distanceX) {
@@ -73,6 +74,7 @@ class Zombie extends Enemy {
       this.distanceY = character.y * character.y - this.y * this.y;
     }
   };
+  //Sprite loop
   enemySpriteLoop = () => {
     if (this.enemySpriteTick >= 10 && !this.attacking) {
       this.SX += 128;
@@ -114,6 +116,7 @@ class Zombie extends Enemy {
       110
     );
   };
+  //Checks for all collision
   checkCollision = (entity) => {
     if (
       // Check if this enemy collides with any entity
@@ -204,6 +207,7 @@ class Orc extends Enemy {
     this.SX = 0;
     this.SY = 0;
   }
+  //Chases the player
   chasePlayer = () => {
     if (!this.attacking) {
       if (this.distanceY * this.distanceY > this.distanceX * this.distanceX) {
@@ -245,6 +249,7 @@ class Orc extends Enemy {
       this.distanceY = character.y * character.y - this.y * this.y;
     }
   };
+  //Sprite loop
   enemySpriteLoop = () => {
     if (this.enemySpriteTick >= 10 && !this.attacking) {
       this.SX += 128;
@@ -286,6 +291,7 @@ class Orc extends Enemy {
       110
     );
   };
+  //Checks for all collision
   checkCollision = (entity) => {
     if (
       // Check if this enemy collides with any entity
@@ -331,6 +337,7 @@ class Orc extends Enemy {
           }
         }
       }
+      //If hit with a weapon, take damage
       if (entity.weapon) {
         if (swordDamageTick == 10 && entity == swordArr[0]) {
           this.health -= swordDamage;
@@ -348,6 +355,7 @@ class Orc extends Enemy {
             entityArr.splice(entityArr.indexOf(entity), 1);
           }
         });
+        //If at 0 health, then die
         if (this.health <= 0) {
           entityArr.splice(entityArr.indexOf(this), 1);
           enemyArr.splice(enemyArr.indexOf(this), 1);
@@ -387,10 +395,12 @@ class Boulder extends Enemy {
       );
     this.piece = piece;
   }
+  //If this is a piece, then move
   update = () => {
     this.x += this.dx;
     this.y += this.dy;
   };
+  //Checks for all collision
   checkCollision = (entity) => {
     if (
       // Check if this enemy collides with any entity
@@ -463,12 +473,14 @@ class Boulder extends Enemy {
       boulderArr.splice(boulderArr.indexOf(this), 1);
     }
   };
+  //Sprite loop
   spriteLoop = () => {
     c.fillStyle = "grey";
     c.fillRect(this.x, this.y, this.width, this.height);
   };
 }
 
+//All types of enemies with data for each
 let enemyType = {
   zombie: {
     typeName: "zombie",

@@ -1,3 +1,4 @@
+//Variables
 let canvas;
 let c;
 let gameRunning = false;
@@ -61,7 +62,7 @@ let startGame = () => {
   // Heartbeat
   let heartbeat = () => {
     makeWorld();
-    makeWave(/*Math.random() * 7*/ 0, /*Math.random() * 4*/ 0);
+    makeWave(Math.random() * 7, Math.random() * 4);
     checkKeys();
     update(character);
     clearMultipleSwords();
@@ -141,6 +142,7 @@ update = (elem) => {
   elem.y += elem.dy;
 };
 
+//Sprite loops
 let allSpriteLoop = () => {
   heroSpriteTick++;
   enemyArr.forEach((enemy) => {
@@ -246,6 +248,7 @@ let heroSpriteLoop = () => {
   }
 };
 
+//Draw hitboxes while in dev mode
 let drawHitboxes = () => {
   c.fillStyle = "red";
   entityArr.forEach((entity) => {
@@ -253,6 +256,7 @@ let drawHitboxes = () => {
   });
 };
 
+//Check if keys are pressed or not
 let checkKeys = () => {
   if (upKey.pressed == false && downKey.pressed == false) {
     character.dy = 0;
@@ -354,6 +358,7 @@ let checkKeys = () => {
   }
 };
 
+//Draw the score and health
 let drawScoreAndHealth = () => {
   c.font = "20px Arial";
   c.fillStyle = "white";
@@ -365,12 +370,14 @@ let drawScoreAndHealth = () => {
   c.fillRect(25, 60, health / 2, 25);
 };
 
+//Go to menu if player died
 let updateHealth = () => {
   if (health <= 0) {
     makeMenu();
   }
 };
 
+//Do sword damage every 10 frames, shoots arrow every 70 frames
 let weaponTickFunction = () => {
   swordDamageTick++;
   bowShootTick++;
@@ -378,12 +385,14 @@ let weaponTickFunction = () => {
   bowShootTick == 71 ? (bowShootTick = 0) : null;
 };
 
+//Update all arrows
 let updateArrows = () => {
   arrowArr.forEach((arrow) => {
     arrow.update();
   });
 };
 
+//Summons enemy
 let summonEnemy = (x, y, width, height, physical, enemyType) => {
   if (enemyType.typeName == "zombie") {
     enemyArr.push(new Zombie(x, y, width, height, physical, enemyType));
@@ -399,6 +408,7 @@ let summonEnemy = (x, y, width, height, physical, enemyType) => {
   }
 };
 
+//Create a wave of enemies
 let makeWave = (numOfZombs, numOfOrcs) => {
   if (enemyArr.length == 0) {
     wave++;
@@ -425,6 +435,7 @@ let makeWave = (numOfZombs, numOfOrcs) => {
   }
 };
 
+//Make enemies chase the player and update boulder
 let updateEnemies = () => {
   enemyArr.forEach((enemy) => {
     enemy.chasePlayer();
@@ -434,6 +445,7 @@ let updateEnemies = () => {
   });
 };
 
+//Check for all collision
 checkAllCollision = () => {
   checkCharacterCollision();
   checkEnemyCollision();
@@ -474,6 +486,7 @@ checkOtherCollision = () => {
   });
 };
 
+//Create coin
 class Coin {
   constructor(x, y, value) {
     this.x = x;
@@ -509,6 +522,7 @@ class Coin {
   };
 }
 
+//Update coins
 let updateCoins = () => {
   coinArr.forEach((coin) => {
     coin.coinSpriteLoop();
