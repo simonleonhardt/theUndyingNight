@@ -7,12 +7,9 @@ class Sword {
     this.physical = false;
     this.weapon = true;
   }
-  draw = () => {
-    c.fillStyle = "grey";
-    c.fillRect(this.x, this.y, this.width, this.height);
-  };
 }
 
+//If more than 1 sword, delete all swords but 1
 let clearMultipleSwords = () => {
   if (swordArr.length > 1) {
     for (let i = 1; swordArr.length > i; ) {
@@ -21,6 +18,7 @@ let clearMultipleSwords = () => {
   }
 };
 
+//Destory the sword
 let destroySword = () => {
   swordArr.pop();
   entityArr.splice(entityArr.indexOf(swordArr[0]), 1);
@@ -41,19 +39,21 @@ class Arrow {
     this.physical = false;
     this.weapon = true;
   }
+  //Move the arrow
   update = () => {
     this.x += this.dx;
     this.y += this.dy;
     if (
-      this.x > window.innerWidth + 20 ||
-      this.x < -20 ||
-      this.y > window.innerHeight + 20 ||
-      this.y < -20
+      this.x > window.innerWidth ||
+      this.x + this.width < 0 ||
+      this.y > window.innerHeight ||
+      this.y + this.height < 0
     ) {
       arrowArr.splice(arrowArr.indexOf(this), 1);
       entityArr.splice(entityArr.indexOf(this), 1);
     }
   };
+  //Sprite loop
   spriteLoop = () => {
     c.drawImage(
       arrowImg,
