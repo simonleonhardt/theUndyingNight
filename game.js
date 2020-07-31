@@ -2,7 +2,6 @@ let canvas;
 let c;
 let gameRunning = false;
 let keyCode;
-let keyPressed = false;
 let character;
 let heroImg = new Image();
 heroImg.src = "images/hero.png";
@@ -26,7 +25,8 @@ let coins = 0;
 let health = 200;
 let swordDamage = 15;
 let swordDamageTick = 0;
-let bowDamage = 10;
+let bowDamage = 20;
+let bowShootTick = 0;
 let upKey = { key: "w", keyCode: 87, pressed: false };
 let downKey = { key: "s", keyCode: 83, pressed: false };
 let rightKey = { key: "d", keyCode: 68, pressed: false };
@@ -40,6 +40,7 @@ let entityArr = [];
 let coinArr = [];
 let boulderArr = [];
 let wave;
+let devMode = false;
 
 // Start Game
 let startGame = () => {
@@ -52,7 +53,7 @@ let startGame = () => {
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
 
-  character = new Character(300, 300, 55, 55);
+  character = new Character(300, 300, 55, 70);
   entityArr.push(character);
 
   wave = 0;
@@ -65,19 +66,28 @@ let startGame = () => {
     update(character);
     clearMultipleSwords();
     checkAllCollision();
-    swordDamageTickFunction();
+    weaponTickFunction();
     updateEnemies();
     updateArrows();
     updateCoins();
     drawScoreAndHealth();
     updateHealth();
     allSpriteLoop();
+    if (devMode) {
+      drawHitboxes();
+    }
     if (gameRunning) {
       window.requestAnimationFrame(heartbeat);
     }
   };
   heartbeat();
 };
+
+//Resive canvas with window
+window.addEventListener("resize", () => {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+});
 
 // Make World
 let makeWorld = () => {
@@ -87,7 +97,6 @@ let makeWorld = () => {
 
 // Listen for key changes
 document.addEventListener("keydown", (e) => {
-  keyPressed = true;
   keyCode = e.keyCode;
   if (keyCode == upKey.keyCode) {
     upKey.pressed = true;
@@ -97,11 +106,14 @@ document.addEventListener("keydown", (e) => {
     rightKey.pressed = true;
   } else if (keyCode == leftKey.keyCode) {
     leftKey.pressed = true;
+  } else if (keyCode == swordKey.keyCode) {
+    swordKey.pressed = true;
+  } else if (keyCode == bowKey.keyCode) {
+    bowKey.pressed = true;
   }
 });
 
 document.addEventListener("keyup", (e) => {
-  keyPressed = false;
   if (e.keyCode == upKey.keyCode) {
     upKey.pressed = false;
   } else if (e.keyCode == downKey.keyCode) {
@@ -110,14 +122,18 @@ document.addEventListener("keyup", (e) => {
     rightKey.pressed = false;
   } else if (e.keyCode == leftKey.keyCode) {
     leftKey.pressed = false;
+  } else if (e.keyCode == swordKey.keyCode) {
+    swordKey.pressed = false;
+  } else if (e.keyCode == bowKey.keyCode) {
+    bowKey.pressed = false;
   }
   if (e.keyCode == 32) {
     heroSX = 508;
   }
+  if (e.keyCode == 120) {
+    devMode = !devMode;
+  }
 });
-
-// Draw Elements
-draw = (elem) => {};
 
 // Update Elements
 update = (elem) => {
@@ -137,24 +153,25 @@ let allSpriteLoop = () => {
   arrowArr.forEach((arrow) => {
     arrow.spriteLoop();
   });
+  boulderArr.forEach((boulder) => {
+    boulder.spriteLoop();
+  });
 };
 
 let heroSpriteLoop = () => {
   if (heroSpriteTick >= 10) {
-    if (keyPressed) {
-      if (
-        keyCode == upKey.keyCode ||
-        keyCode == downKey.keyCode ||
-        keyCode == rightKey.keyCode ||
-        keyCode == leftKey.keyCode ||
-        swingingSword ||
-        shootingBow
-      ) {
-        if (!shootingBow) {
-          heroSX += 127;
-        } else if (shootingBow) {
-          heroSX += 129;
-        }
+    if (
+      upKey.pressed ||
+      downKey.pressed ||
+      leftKey.pressed ||
+      rightKey.pressed ||
+      swingingSword ||
+      shootingBow
+    ) {
+      if (!shootingBow) {
+        heroSX += 127;
+      } else if (shootingBow) {
+        heroSX += 129;
       }
     } else {
       heroSX = 0;
@@ -183,15 +200,27 @@ let heroSpriteLoop = () => {
   }
   if (shootingBow) {
     if (heroLastFacing == "down") {
-      heroSY = 1294;
+      heroSY = 1296;
     } else if (heroLastFacing == "up") {
-      heroSY = 1000;
+      heroSY = 1012;
     } else if (heroLastFacing == "right") {
-      heroSY = 1415;
+      heroSY = 1417;
     } else if (heroLastFacing == "left") {
-      heroSY = 1142;
+      heroSY = 1144;
     }
-  } else {
+    c.drawImage(
+      heroImg,
+      heroSX + 10,
+      heroSY,
+      127,
+      126,
+      character.x - 20,
+      character.y - 8,
+      90,
+      90
+    );
+  }
+  if (!heroAttacking) {
     if (heroLastFacing == "down") {
       heroSY = 252;
     } else if (heroLastFacing == "up") {
@@ -202,17 +231,26 @@ let heroSpriteLoop = () => {
       heroSY = 126;
     }
   }
-  c.drawImage(
-    heroImg,
-    heroSX,
-    heroSY,
-    127,
-    126,
-    character.x - 20,
-    character.y - 20,
-    90,
-    90
-  );
+  if (!heroAttacking || swingingSword) {
+    c.drawImage(
+      heroImg,
+      heroSX,
+      heroSY,
+      127,
+      126,
+      character.x - 20,
+      character.y - 8,
+      90,
+      90
+    );
+  }
+};
+
+let drawHitboxes = () => {
+  c.fillStyle = "red";
+  entityArr.forEach((entity) => {
+    c.fillRect(entity.x, entity.y, entity.width, entity.height);
+  });
 };
 
 let checkKeys = () => {
@@ -252,7 +290,7 @@ let checkKeys = () => {
       heroSY = 126;
       heroLastFacing = "left";
     }
-    if (keyCode == swordKey.keyCode) {
+    if (swordKey.pressed) {
       heroAttacking = true;
       swingingSword = true;
       character.dx = 0;
@@ -261,11 +299,13 @@ let checkKeys = () => {
       entityArr.push(swordArr[0]);
       setTimeout(destroySword, 100);
     }
-    if (keyCode == bowKey.keyCode) {
-      heroAttacking = true;
-      shootingBow = true;
-      character.dx = 0;
-      character.dy = 0;
+  }
+  if (bowKey.pressed) {
+    heroAttacking = true;
+    shootingBow = true;
+    character.dx = 0;
+    character.dy = 0;
+    if (bowShootTick == 70) {
       arrowArr.push(
         new Arrow(
           heroLastFacing == "up" || "down"
@@ -298,14 +338,19 @@ let checkKeys = () => {
         )
       );
       entityArr.push(arrowArr[arrowArr.length - 1]);
-      setTimeout(() => {
-        heroAttacking = false;
-        shootingBow = false;
-      }, 1000);
     }
-    if (keyCode == 27) {
-      makeMenu();
-    }
+  }
+  if (keyCode == 27) {
+    makeMenu();
+  }
+  if (!swordKey.pressed) {
+    swingingSword = false;
+  }
+  if (!bowKey.pressed) {
+    shootingBow = false;
+  }
+  if (!swordKey.pressed && !bowKey.pressed) {
+    heroAttacking = false;
   }
 };
 
@@ -326,11 +371,11 @@ let updateHealth = () => {
   }
 };
 
-let swordDamageTickFunction = () => {
+let weaponTickFunction = () => {
   swordDamageTick++;
-  if (swordDamageTick == 11) {
-    swordDamageTick = 0;
-  }
+  bowShootTick++;
+  swordDamageTick == 11 ? (swordDamageTick = 0) : null;
+  bowShootTick == 71 ? (bowShootTick = 0) : null;
 };
 
 let updateArrows = () => {
@@ -384,6 +429,9 @@ let updateEnemies = () => {
   enemyArr.forEach((enemy) => {
     enemy.chasePlayer();
   });
+  boulderArr.forEach((boulder) => {
+    boulder.update();
+  });
 };
 
 checkAllCollision = () => {
@@ -394,8 +442,8 @@ checkAllCollision = () => {
 
 checkCharacterCollision = () => {
   entityArr.forEach((collider) => {
-    if (collider.physical) {
-      if (collider != character) {
+    if (collider != undefined) {
+      if (collider != character && collider.physical) {
         character.checkCollision(collider);
       }
     }
@@ -405,8 +453,10 @@ checkCharacterCollision = () => {
 checkEnemyCollision = () => {
   enemyArr.forEach((enemy) => {
     entityArr.forEach((collider) => {
-      if (collider != enemy) {
-        enemy.checkCollision(collider);
+      if (collider != undefined) {
+        if (collider != enemy) {
+          enemy.checkCollision(collider);
+        }
       }
     });
   });
@@ -415,8 +465,10 @@ checkEnemyCollision = () => {
 checkOtherCollision = () => {
   boulderArr.forEach((boulder) => {
     entityArr.forEach((collider) => {
-      if (collider != boulder) {
-        boulder.checkCollision(collider);
+      if (collider != undefined) {
+        if (collider != boulder) {
+          boulder.checkCollision(collider);
+        }
       }
     });
   });
@@ -439,7 +491,8 @@ class Coin {
       this.y < character.y + character.height &&
       this.y + this.height > character.y
     ) {
-      coinArr.splice(coinArr.indexOf(this, 1));
+      coinArr.splice(coinArr.indexOf(this), 1);
+      entityArr.splice(entityArr.indexOf(this), 1);
       coins += this.value;
     }
   };
@@ -457,10 +510,10 @@ class Coin {
 }
 
 let updateCoins = () => {
-  for (i = 0; i < coinArr.length; i++) {
-    coinArr[i].coinSpriteLoop();
-    coinArr[i].pickedUp();
-  }
+  coinArr.forEach((coin) => {
+    coin.coinSpriteLoop();
+    coin.pickedUp();
+  });
 };
 
 // Make menu

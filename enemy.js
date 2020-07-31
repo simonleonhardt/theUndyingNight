@@ -102,31 +102,17 @@ class Zombie extends Enemy {
         this.SX = 0;
       }
     }
-    if (this.type.typeName == "zombie") {
-      c.drawImage(
-        zombieImg,
-        this.SX,
-        this.SY,
-        128,
-        128,
-        this.x - 30,
-        this.y - 20,
-        110,
-        110
-      );
-    } else if (this.type.typeName == "orc") {
-      c.drawImage(
-        orcImg,
-        this.SX,
-        this.SY,
-        128,
-        128,
-        this.x - 30,
-        this.y - 20,
-        110,
-        110
-      );
-    }
+    c.drawImage(
+      zombieImg,
+      this.SX,
+      this.SY,
+      128,
+      128,
+      this.x - 30,
+      this.y - 20,
+      110,
+      110
+    );
   };
   checkCollision = (entity) => {
     if (
@@ -143,7 +129,6 @@ class Zombie extends Enemy {
         // Is collision with character, then attack
         this.attacking = true;
         setTimeout(() => {
-          this.attacking = false;
           if (
             this.x <= character.x + character.width &&
             this.x + this.width >= character.x &&
@@ -154,6 +139,7 @@ class Zombie extends Enemy {
               health -= this.damage;
             }
           }
+          this.attacking = false;
         }, Math.round(Math.random() * (this.type.attackSpeed.max - this.type.attackSpeed.min) + this.type.attackSpeed.min));
       }
 
@@ -178,8 +164,17 @@ class Zombie extends Enemy {
           this.health -= swordDamage;
         }
         arrowArr.forEach((arrow) => {
-          entity == arrow ? (this.health -= bowDamage) : null;
-          arrowArr.splice(arrowArr.indexOf(arrow, 1));
+          if (
+            entity == arrow &&
+            this.x <= entity.x + entity.width &&
+            this.x + this.width >= entity.x &&
+            this.y <= entity.y + entity.height &&
+            this.y + this.height >= entity.y
+          ) {
+            this.health -= bowDamage;
+            arrowArr.splice(arrowArr.indexOf(entity), 1);
+            entityArr.splice(entityArr.indexOf(entity), 1);
+          }
         });
         if (this.health <= 0) {
           entityArr.splice(entityArr.indexOf(this), 1);
@@ -279,31 +274,17 @@ class Orc extends Enemy {
         this.SX = 0;
       }
     }
-    if (this.type.typeName == "zombie") {
-      c.drawImage(
-        zombieImg,
-        this.SX,
-        this.SY,
-        128,
-        128,
-        this.x - 30,
-        this.y - 20,
-        110,
-        110
-      );
-    } else if (this.type.typeName == "orc") {
-      c.drawImage(
-        orcImg,
-        this.SX,
-        this.SY,
-        128,
-        128,
-        this.x - 30,
-        this.y - 20,
-        110,
-        110
-      );
-    }
+    c.drawImage(
+      orcImg,
+      this.SX,
+      this.SY,
+      128,
+      128,
+      this.x - 30,
+      this.y - 20,
+      110,
+      110
+    );
   };
   checkCollision = (entity) => {
     if (
@@ -355,8 +336,17 @@ class Orc extends Enemy {
           this.health -= swordDamage;
         }
         arrowArr.forEach((arrow) => {
-          entity == arrow ? (this.health -= bowDamage) : null;
-          arrowArr.splice(arrowArr.indexOf(arrow, 1));
+          if (
+            entity == arrow &&
+            this.x <= entity.x + entity.width &&
+            this.x + this.width >= entity.x &&
+            this.y <= entity.y + entity.height &&
+            this.y + this.height >= entity.y
+          ) {
+            this.health -= bowDamage;
+            arrowArr.splice(arrowArr.indexOf(entity), 1);
+            entityArr.splice(entityArr.indexOf(entity), 1);
+          }
         });
         if (this.health <= 0) {
           entityArr.splice(entityArr.indexOf(this), 1);
@@ -373,6 +363,7 @@ class Orc extends Enemy {
               )
             )
           );
+          entityArr.push(coinArr[coinArr.length - 1]);
         }
       }
     }
@@ -380,9 +371,26 @@ class Orc extends Enemy {
 }
 
 class Boulder extends Enemy {
-  constructor(...args) {
+  constructor(dx, dy, piece, ...args) {
     super(...args);
+    this.dx =
+      dx *
+      Math.round(
+        Math.random() * (this.type.speed.max - this.type.speed.min) +
+          this.type.speed.min
+      );
+    this.dy =
+      dy *
+      Math.round(
+        Math.random() * (this.type.speed.max - this.type.speed.min) +
+          this.type.speed.min
+      );
+    this.piece = piece;
   }
+  update = () => {
+    this.x += this.dx;
+    this.y += this.dy;
+  };
   checkCollision = (entity) => {
     if (
       // Check if this enemy collides with any entity
@@ -391,24 +399,30 @@ class Boulder extends Enemy {
       this.y <= entity.y + entity.height &&
       this.y + this.height >= entity.y
     ) {
-      let vectorX = (this.x + this.width) / 2 - (entity.x + entity.width) / 2;
-      let vectorY = (this.y + this.height) / 2 - (entity.y + entity.height) / 2;
-      if (!entity.weapon && entity.physical) {
-        // Is collision with physical obj
-        if (vectorX * vectorX > vectorY * vectorY) {
-          if (vectorX > 0) {
-            this.x = entity.x + entity.width;
-          } else {
-            this.x = entity.x - this.width;
-          }
-        } else {
-          if (vectorY > 0) {
-            this.y = entity.y + entity.height;
-          } else {
-            this.y = entity.y - this.height;
-          }
-        }
+      if (entity == character && this.piece) {
+        health -= this.damage;
+        entityArr.splice(entityArr.indexOf(this), 1);
+        boulderArr.splice(boulderArr.indexOf(this), 1);
+        console.log(entityArr.indexOf(this));
+        return;
       }
+      enemyArr.forEach((enemy) => {
+        if (
+          entity == enemy &&
+          this.x <= entity.x + entity.width &&
+          this.x + this.width >= entity.x &&
+          this.y <= entity.y + entity.height &&
+          this.y + this.height >= entity.y &&
+          enemy.typeName != "boulder" &&
+          this.piece
+        ) {
+          enemy.health -= this.damage;
+          entityArr.splice(entityArr.indexOf(this), 1);
+          boulderArr.splice(boulderArr.indexOf(this), 1);
+          console.log(entityArr.indexOf(this));
+          return;
+        }
+      });
       if (entity.weapon) {
         swordDamageTick == 10 && entity == swordArr[0]
           ? (this.health -= swordDamage)
@@ -417,14 +431,39 @@ class Boulder extends Enemy {
           entity == arrow ? (this.health -= bowDamage) : null;
           arrowArr.splice(arrowArr.indexOf(arrow, 1));
         });
-        if (this.health <= 0) {
+        if (this.health <= 0 && !this.piece) {
+          for (let i = 0; i < 4; i++) {
+            boulderArr.push(
+              new Boulder(
+                Math.random() > 0.5 ? 1 : -1,
+                Math.random() > 0.5 ? 1 : -1,
+                true,
+                this.x,
+                this.y,
+                20,
+                20,
+                true,
+                enemyType.boulder
+              )
+            );
+            entityArr.push(boulderArr[boulderArr.length]);
+          }
           entityArr.splice(entityArr.indexOf(this), 1);
           boulderArr.splice(boulderArr.indexOf(this), 1);
         }
       }
     }
+    if (
+      this.x > window.innerWidth ||
+      this.x + this.width < 0 ||
+      this.y > window.innerHeight ||
+      this.y + this.height < 0
+    ) {
+      entityArr.splice(entityArr.indexOf(this), 1);
+      boulderArr.splice(boulderArr.indexOf(this), 1);
+    }
   };
-  drawBoulder = () => {
+  spriteLoop = () => {
     c.fillStyle = "grey";
     c.fillRect(this.x, this.y, this.width, this.height);
   };
@@ -437,7 +476,7 @@ let enemyType = {
     coinDrop: { min: 0, max: 3 },
     damage: { min: 10, max: 20 },
     attackSpeed: { min: 500, max: 1500 },
-    health: { min: 30, max: 50 },
+    health: { min: 30, max: 45 },
   },
   orc: {
     typeName: "orc",
@@ -445,7 +484,7 @@ let enemyType = {
     coinDrop: { min: 1, max: 4 },
     damage: { min: 15, max: 30 },
     attackSpeed: { min: 1500, max: 2500 },
-    health: { min: 45, max: 70 },
+    health: { min: 45, max: 60 },
   },
   boulder: {
     typeName: "boulder",

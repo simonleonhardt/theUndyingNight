@@ -45,10 +45,10 @@ class Arrow {
     this.x += this.dx;
     this.y += this.dy;
     if (
-      this.x > window.innerWidth + 20 ||
-      this.x < -20 ||
-      this.y > window.innerHeight + 20 ||
-      this.y < -20
+      this.x > window.innerWidth ||
+      this.x + this.width < 0 ||
+      this.y > window.innerHeight ||
+      this.y + this.height < 0
     ) {
       arrowArr.splice(arrowArr.indexOf(this), 1);
       entityArr.splice(entityArr.indexOf(this), 1);
