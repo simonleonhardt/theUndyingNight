@@ -9,19 +9,10 @@ class Sword {
   }
 }
 
-//If more than 1 sword, delete all swords but 1
-let clearMultipleSwords = () => {
-  if (swordArr.length > 1) {
-    for (let i = 1; swordArr.length > i; ) {
-      swordArr.pop();
-    }
-  }
-};
-
 //Destory the sword
 let destroySword = () => {
-  swordArr.pop();
   entityArr.splice(entityArr.indexOf(swordArr[0]), 1);
+  swordArr.pop();
   heroAttacking = false;
   swingingSword = false;
 };

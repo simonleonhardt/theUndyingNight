@@ -23,7 +23,6 @@ let shootingBow = false;
 let heroLastFacing = "right";
 let heroSpriteTick = 0;
 let coins = 0;
-let health = 200;
 let swordDamage = 15;
 let swordDamageTick = 0;
 let bowDamage = 20;
@@ -35,11 +34,14 @@ let leftKey = { key: "a", keyCode: 65, pressed: false };
 let swordKey = { key: "space", keyCode: 32, pressed: false };
 let bowKey = { key: "e", keyCode: 69, pressed: false };
 let enemyArr = [];
+let bossArr = [];
 let swordArr = [];
 let arrowArr = [];
 let entityArr = [];
 let coinArr = [];
 let boulderArr = [];
+let clubArr = [];
+let boulderSpawnFrame = 750;
 let wave;
 let devMode = false;
 
@@ -54,6 +56,10 @@ let startGame = () => {
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
 
+  swordDamage = 15;
+  bowDamage = 20;
+  coins = 0;
+
   character = new Character(300, 300, 55, 70);
   entityArr.push(character);
 
@@ -62,10 +68,9 @@ let startGame = () => {
   // Heartbeat
   let heartbeat = () => {
     makeWorld();
-    makeWave(Math.random() * 7, Math.random() * 4);
+    makeWave(Math.random() * 4 + 1, Math.random() * 2 + 1);
     checkKeys();
     update(character);
-    clearMultipleSwords();
     checkAllCollision();
     weaponTickFunction();
     updateEnemies();
@@ -150,7 +155,7 @@ let allSpriteLoop = () => {
   });
   heroSpriteLoop();
   enemyArr.forEach((enemy) => {
-    enemy.enemySpriteLoop();
+    enemy.spriteLoop();
   });
   arrowArr.forEach((arrow) => {
     arrow.spriteLoop();
@@ -243,8 +248,12 @@ let heroSpriteLoop = () => {
       character.x - 20,
       character.y - 8,
       90,
-      90
+      90,
+      30,
+      30
     );
+    character.sx += 8;
+    character.sx == 16 ? character.sx = 0 : null;
   }
 };
 
@@ -295,13 +304,15 @@ let checkKeys = () => {
       heroLastFacing = "left";
     }
     if (swordKey.pressed) {
-      heroAttacking = true;
-      swingingSword = true;
-      character.dx = 0;
-      character.dy = 0;
-      swordArr.push(new Sword(character.swordX, character.swordY));
-      entityArr.push(swordArr[0]);
-      setTimeout(destroySword, 100);
+      if(swordArr.length == 0) {
+        heroAttacking = true;
+        swingingSword = true;
+        character.dx = 0;
+        character.dy = 0;
+        swordArr.push(new Sword(character.swordX, character.swordY));
+        entityArr.push(swordArr[0]);
+        setTimeout(destroySword, 100);
+      }
     }
   }
   if (bowKey.pressed) {
@@ -367,21 +378,45 @@ let drawScoreAndHealth = () => {
   c.fillStyle = "#646262";
   c.fillRect(25, 60, 100, 25);
   c.fillStyle = "#D12B2B";
-  c.fillRect(25, 60, health / 2, 25);
+  c.fillRect(25, 60, character.health / 2, 25);
 };
 
 //Go to menu if player died
 let updateHealth = () => {
-  if (health <= 0) {
+  if (character.health <= 0) {
     makeMenu();
   }
 };
 
-//Do sword damage every 10 frames, shoots arrow every 70 frames
+//Do sword damage every 10 frames, shoots arrow every 70 frames, every 100 frames ogre boss swings club
 let weaponTickFunction = () => {
   swordDamageTick++;
   bowShootTick++;
-  swordDamageTick == 11 ? (swordDamageTick = 0) : null;
+  if (bossArr.length > 0 && bossArr[0].attacking) {
+    bossArr[0].swingClub();
+  }
+  if (wave == 5) {
+    boulderSpawnFrame--;
+    if (boulderSpawnFrame == 0) {
+      boulderArr.push(
+        new Boulder(
+          0,
+          0,
+          false,
+          false,
+          Math.random() * window.innerWidth - 80,
+          Math.random() * window.innerHeight - 80,
+          50,
+          50,
+          true,
+          enemyType.boulder
+        )
+      );
+      entityArr.push(boulderArr[boulderArr.length - 1]);
+      boulderSpawnFrame = 750;
+    }
+  }
+  swordDamageTick == 21 ? (swordDamageTick = 0) : null;
   bowShootTick == 71 ? (bowShootTick = 0) : null;
 };
 
@@ -402,6 +437,11 @@ let summonEnemy = (x, y, width, height, physical, enemyType) => {
     enemyArr.push(new Orc(x, y, width, height, physical, enemyType));
     entityArr.push(enemyArr[enemyArr.length - 1]);
   }
+  if (enemyType.typeName == "ogre") {
+    bossArr.push(new OgreBoss(x, y, width, height, physical, enemyType));
+    enemyArr.push(bossArr[bossArr.length - 1]);
+    entityArr.push(enemyArr[enemyArr.length - 1]);
+  }
   if (enemyType.typeName == "boulder") {
     boulderArr.push(new Boulder(x, y, width, height, physical, enemyType));
     entityArr.push(boulderArr[boulderArr.length - 1]);
@@ -412,25 +452,38 @@ let summonEnemy = (x, y, width, height, physical, enemyType) => {
 let makeWave = (numOfZombs, numOfOrcs) => {
   if (enemyArr.length == 0) {
     wave++;
-    for (let i = 0; i < numOfZombs; i++) {
-      summonEnemy(
-        Math.random() * canvas.width,
-        Math.random() * canvas.height,
-        55,
-        75,
-        true,
-        enemyType.zombie
-      );
-    }
-    for (let i = 0; i < numOfOrcs; i++) {
-      summonEnemy(
-        Math.random() * canvas.width,
-        Math.random() * canvas.height,
-        55,
-        75,
-        true,
-        enemyType.orc
-      );
+    switch (wave) {
+      case 5:
+        summonEnemy(
+          window.innerWidth / 2,
+          window.innerHeight / 2,
+          100,
+          100,
+          true,
+          enemyType.ogreBoss
+        );
+        break;
+      default:
+        for (let i = 0; i < numOfZombs; i++) {
+          summonEnemy(
+            Math.random() * canvas.width,
+            Math.random() * canvas.height,
+            55,
+            75,
+            true,
+            enemyType.zombie
+          );
+        }
+        for (let i = 0; i < numOfOrcs; i++) {
+          summonEnemy(
+            Math.random() * canvas.width,
+            Math.random() * canvas.height,
+            55,
+            75,
+            true,
+            enemyType.orc
+          );
+        }
     }
   }
 };
@@ -443,6 +496,29 @@ let updateEnemies = () => {
   boulderArr.forEach((boulder) => {
     boulder.update();
   });
+  if (bossArr.length > 0) {
+    c.fillStyle = "#D12B2B";
+    c.fillRect(
+      window.innerWidth / 2 - bossArr[0].health / 2,
+      window.innerHeight - 60,
+      bossArr[0].health,
+      30
+    );
+    c.fillStyle = "white";
+    c.fillText(
+      bossArr[0].health,
+      window.innerWidth / 2,
+      window.innerHeight - 40
+    );
+    if (bossArr[0].throwingBoulder) {
+      bossArr[0].throwingBoulderFunction();
+    }
+    boulderArr.forEach((boulder) => {
+      if (boulder.thrown) {
+        boulder.beingThrown();
+      }
+    });
+  }
 };
 
 //Check for all collision
@@ -477,11 +553,20 @@ checkEnemyCollision = () => {
 checkOtherCollision = () => {
   boulderArr.forEach((boulder) => {
     entityArr.forEach((collider) => {
-      if (collider != undefined) {
-        if (collider != boulder) {
-          boulder.checkCollision(collider);
-        }
-      }
+      collider != undefined
+        ? collider != boulder
+          ? boulder.checkCollision(collider)
+          : null
+        : null;
+    });
+  });
+  clubArr.forEach((club) => {
+    entityArr.forEach((collider) => {
+      collider != undefined
+        ? collider != club
+          ? club.checkCollision(collider)
+          : null
+        : null;
     });
   });
 };
@@ -512,13 +597,13 @@ class Coin {
   coinSpriteLoop = () => {
     this.coinSpriteTick++;
     if (this.coinSpriteTick >= 10) {
-      this.SX += 50;
+      this.SX += 16;
       this.coinSpriteTick = 0;
     }
-    if (this.SX == 300) {
+    if (this.SX == 192) {
       this.SX = 0;
     }
-    c.drawImage(coinImg, this.SX, 0, 50, 59, this.x, this.y, 50, 59);
+    c.drawImage(coinImg, this.SX, 0, 16, 16, this.x, this.y, 32, 32);
   };
 }
 
@@ -542,9 +627,18 @@ let makeMenu = () => {
   for (let i = 0; i < swordArr.length; ) {
     swordArr.pop();
   }
-  health = 200;
-  swordDamage = 15;
-  coins = 0;
+  for (let i = 0; i < coinArr.length; ) {
+    coinArr.pop();
+  }
+  for (let i = 0; i < boulderArr.length; ) {
+    boulderArr.pop();
+  }
+  for (let i = 0; i < bossArr.length; ) {
+    bossArr.pop();
+  }
+  for (let i = 0; i < clubArr.length; ) {
+    clubArr.pop();
+  }
 
   document.querySelector("body").innerHTML =
     "<img src='images/theUndyingNightLogo.jpg' id='logo'>" +
