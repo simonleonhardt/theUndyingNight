@@ -10,6 +10,7 @@ class Character {
     this.weapon = false;
     this.swordX = this.x + this.width;
     this.swordY = this.y + this.height / 2 - 17.5;
+    this.health = 200;
   }
   //Collide with anything
   checkCollision = (entity) => {
