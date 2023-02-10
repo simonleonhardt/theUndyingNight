@@ -592,18 +592,23 @@ class Coin {
       coinArr.splice(coinArr.indexOf(this), 1);
       entityArr.splice(entityArr.indexOf(this), 1);
       coins += this.value;
+      if(character.health + 10 <= character.maxHealth) {
+        character.health += 10;
+      } else {
+        character.health = character.maxHealth;
+      }
     }
   };
   coinSpriteLoop = () => {
     this.coinSpriteTick++;
     if (this.coinSpriteTick >= 10) {
-      this.SX += 16;
+      this.SX += 50;
       this.coinSpriteTick = 0;
     }
-    if (this.SX == 192) {
+    if (this.SX == 300) {
       this.SX = 0;
     }
-    c.drawImage(coinImg, this.SX, 0, 16, 16, this.x, this.y, 32, 32);
+    c.drawImage(coinImg, this.SX, 0, 50, 60, this.x, this.y, 32, 32);
   };
 }
 
